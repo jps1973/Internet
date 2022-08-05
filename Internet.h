@@ -9,6 +9,8 @@
 
 #include "Common.h"
 
+#include "InternetClass.h"
+
 #define MAIN_WINDOW_CLASS_NAME													"Main Internet Window Class"
 
 #define MAIN_WINDOW_CLASS_STYLE													0
@@ -31,7 +33,7 @@
 
 #define EDIT_WINDOW_EXTENDED_STYLE												0
 #define EDIT_WINDOW_STYLE														( WS_CHILD | WS_VISIBLE | WS_BORDER )
-#define EDIT_WINDOW_TEXT														"https://www.bbc.co.uk/news"
+#define EDIT_WINDOW_DEFAULT_URL													"http://www.google.com"
 
 #define BUTTON_WINDOW_EXTENDED_STYLE											0
 #define BUTTON_WINDOW_STYLE														( WS_CHILD | WS_VISIBLE | WS_BORDER | BS_FLAT | BS_VCENTER )

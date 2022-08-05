@@ -10,6 +10,7 @@
 #define WINDOW_BORDER_HEIGHT													GetSystemMetrics( SM_CYBORDER )
 
 #define ASCII_BACK_SLASH_CHARACTER												'\\'
+#define ASCII_FORWARD_SLASH_CHARACTER											'/'
 #define ASCII_FULL_STOP_CHARACTER												'.'
 
 #define ASCII_BACK_SLASH_STRING													"\\"
