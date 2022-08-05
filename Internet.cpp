@@ -9,6 +9,68 @@ HWND g_hWndListBox;
 HWND g_hWndStatusBar;
 Internet g_internet;
 
+BOOL DownloadFile( LPCTSTR lpszUrl )
+{
+	BOOL bResult = FALSE;
+
+	// Allocate string memory
+	LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
+
+	// Download file
+	if( g_internet.Download( lpszUrl, lpszLocalFilePath ) )
+	{
+		// Successfully downloaded file
+		File localFile;
+
+		// Open local file
+		if( localFile.CreateRead( lpszLocalFilePath ) )
+		{
+			// Successfully opened local file
+			DWORD dwLocalFileSize;
+
+			// Get local file size
+			dwLocalFileSize = localFile.GetSize();
+
+			// Ensure that local file size was got
+			if( dwLocalFileSize != INVALID_FILE_SIZE )
+			{
+				// Successfully got local file size
+
+				// Allocate string memory
+				LPTSTR lpszLocalFileText = new char[ dwLocalFileSize + sizeof( char ) ];
+
+				// Read local file text
+				if( localFile.Read( lpszLocalFileText, dwLocalFileSize ) )
+				{
+					// Successfully read local file text
+
+					// Terminate local file text
+					lpszLocalFileText[ dwLocalFileSize ] = ( char )NULL;
+
+					// Display local file text
+					MessageBox( NULL, lpszLocalFileText, lpszUrl, ( MB_OK | MB_ICONINFORMATION ) );
+
+					// Update return value
+					bResult = TRUE;
+
+				} // End of successfully read local file text
+
+				// Free string memory
+				delete [] lpszLocalFileText;
+
+			} // End of successfully got local file size
+
+			// Close local file
+			localFile.Close();
+
+		} // End of successfully opened local file
+
+	} // End of successfully downloaded file
+
+	return bResult;
+
+} // End of function DownloadFile
+
 int ShowAboutMessage( HWND hWnd )
 {
 	int nResult = 0;
@@ -291,18 +353,8 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 					{
 						// Successfully got url from edit window
 
-						// Allocate string memory
-						LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
-
 						// Download file
-						if( g_internet.Download( lpszUrl, lpszLocalFilePath ) )
-						{
-							// Successfully downloaded file
-
-							// Display url
-							MessageBox( hWnd, lpszUrl, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
-
-						} // End of successfully downloaded file
+						DownloadFile( lpszUrl );
 
 					} // End of successfully got url from edit window
 
