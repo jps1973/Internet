@@ -58,5 +58,11 @@
 																				"\r\n"								\
 																				"July 2022"
 
+#define DOWNLOADING_STATUS_MESSAGE_FORMAT_STRING								"Downloading %s..."
+#define SUCCESSFULLY_DOWNLOADED_FILE_STATUS_MESSAGE_FORMAT_STRING				"Successfully downloaded %s to %s (%d tags)"
+#define UNABLE_TO_GET_LOCAL_FILE_SIZE_STATUS_MESSAGE_FORMAT_STRING				"Unable to get sixe of local file, %s"
+#define UNABLE_TO_OPEN_LOCAL_FILE_STATUS_MESSAGE_FORMAT_STRING					"Unable to open local file, %s"
+#define UNABLE_TO_DOWNLOAD_FILE_STATUS_MESSAGE_FORMAT_STRING					"Unable to download %s"
+
 #define UNABLE_TO_REGISTER_WINDOW_CLASS_ERROR_MESSAGE							"Unable to Register Window Class"
 #define UNABLE_TO_CREATE_WINDOW_ERROR_MESSAGE									"Unable to Create Window"

@@ -9,12 +9,80 @@ HWND g_hWndListBox;
 HWND g_hWndStatusBar;
 Internet g_internet;
 
+int DisplayFile( LPCTSTR lpszFileText )
+{
+	int nResult = 0;
+
+	LPTSTR lpszStartOfTag;
+	LPTSTR lpszEndOfTag = ( LPTSTR )lpszFileText;
+	DWORD dwMaxTagLength = STRING_LENGTH;
+	DWORD dwTagLength;
+
+	// Allocate string memory
+	LPTSTR lpszTag = new char[ dwMaxTagLength + sizeof( char ) ];
+
+	// Find start of first tag
+	lpszStartOfTag = strchr( lpszFileText, ASCII_LESS_THAN_CHARACTER );
+
+	// Loop through all tags
+	while( lpszStartOfTag )
+	{
+		// Find end of tag
+		lpszEndOfTag = strchr( lpszStartOfTag, ASCII_GREATER_THAN_CHARACTER );
+
+		// Calculate length of tag
+		dwTagLength = ( ( lpszEndOfTag - lpszStartOfTag ) + sizeof( char ) );
+
+		// Ensure that tag length is less then maximum
+		if( dwTagLength > dwMaxTagLength )
+		{
+			// Tag length is greater then maximum
+
+			// Free string memory
+			delete [] lpszTag;
+
+			// Update maximum
+			dwMaxTagLength = dwTagLength;
+
+			// Re-allocate string memory
+			lpszTag = new char[ dwMaxTagLength + sizeof( char ) ];
+
+		} // End of tag length is greater then maximum
+
+		// Store tag
+		lstrcpyn( lpszTag, lpszStartOfTag, ( dwTagLength + sizeof( char ) ) );
+
+		// Add tag to list box window
+		SendMessage( g_hWndListBox, LB_ADDSTRING, ( WPARAM )NULL, ( LPARAM )lpszTag );
+
+		// Find start of next tag
+		lpszStartOfTag = strchr( lpszEndOfTag, ASCII_LESS_THAN_CHARACTER );
+
+		// Update result
+		nResult ++;
+
+	}; // End of loop through all tags
+
+	// Free string memory
+	delete [] lpszTag;
+
+	return nResult;
+
+} // End of function DisplayFile
+
 BOOL DownloadFile( LPCTSTR lpszUrl )
 {
 	BOOL bResult = FALSE;
 
 	// Allocate string memory
-	LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
+	LPTSTR lpszLocalFilePath	= new char[ STRING_LENGTH ];
+	LPTSTR lpszStatus			= new char[ STRING_LENGTH ];
+
+	// Format status message
+	wsprintf( lpszStatus, DOWNLOADING_STATUS_MESSAGE_FORMAT_STRING, lpszUrl );
+
+	// Show status message on status bar window
+	SendMessage( g_hWndStatusBar, SB_SETTEXT, ( WPARAM )NULL, ( LPARAM )lpszStatus );
 
 	// Download file
 	if( g_internet.Download( lpszUrl, lpszLocalFilePath ) )
@@ -43,12 +111,16 @@ BOOL DownloadFile( LPCTSTR lpszUrl )
 				if( localFile.Read( lpszLocalFileText, dwLocalFileSize ) )
 				{
 					// Successfully read local file text
+					int nTagCount;
 
 					// Terminate local file text
 					lpszLocalFileText[ dwLocalFileSize ] = ( char )NULL;
 
-					// Display local file text
-					MessageBox( NULL, lpszLocalFileText, lpszUrl, ( MB_OK | MB_ICONINFORMATION ) );
+					// Display local file
+					nTagCount = DisplayFile( lpszLocalFileText );
+
+					// Format status message
+					wsprintf( lpszStatus, SUCCESSFULLY_DOWNLOADED_FILE_STATUS_MESSAGE_FORMAT_STRING, lpszUrl, lpszLocalFilePath, nTagCount );
 
 					// Update return value
 					bResult = TRUE;
@@ -59,13 +131,44 @@ BOOL DownloadFile( LPCTSTR lpszUrl )
 				delete [] lpszLocalFileText;
 
 			} // End of successfully got local file size
+			else
+			{
+				// Unable to get local file size
+
+				// Format status message
+				wsprintf( lpszStatus, UNABLE_TO_GET_LOCAL_FILE_SIZE_STATUS_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
+
+			} // End of unable to get local file size
 
 			// Close local file
 			localFile.Close();
 
 		} // End of successfully opened local file
+		else
+		{
+			// Unable to open local file
+
+			// Format status message
+			wsprintf( lpszStatus, UNABLE_TO_OPEN_LOCAL_FILE_STATUS_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
+
+		} // End of unable to open local file
 
 	} // End of successfully downloaded file
+	else
+	{
+		// Unable to download file
+
+		// Format status message
+		wsprintf( lpszStatus, UNABLE_TO_DOWNLOAD_FILE_STATUS_MESSAGE_FORMAT_STRING, lpszUrl );
+
+	} // End of unable to download file
+
+	// Show status message on status bar window
+	SendMessage( g_hWndStatusBar, SB_SETTEXT, ( WPARAM )NULL, ( LPARAM )lpszStatus );
+
+	// Free string memory
+	delete [] lpszLocalFilePath;
+	delete [] lpszStatus;
 
 	return bResult;
 
