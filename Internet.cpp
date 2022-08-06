@@ -15,11 +15,12 @@ int DisplayFile( LPCTSTR lpszFileText )
 
 	LPTSTR lpszStartOfTag;
 	LPTSTR lpszEndOfTag = ( LPTSTR )lpszFileText;
-	DWORD dwMaxTagLength = STRING_LENGTH;
+	DWORD dwMaxItemLength = STRING_LENGTH;
 	DWORD dwTagLength;
+	DWORD dwTextLength;
 
 	// Allocate string memory
-	LPTSTR lpszTag = new char[ dwMaxTagLength + sizeof( char ) ];
+	LPTSTR lpszItem = new char[ dwMaxItemLength + sizeof( char ) ];
 
 	// Find start of first tag
 	lpszStartOfTag = strchr( lpszFileText, ASCII_LESS_THAN_CHARACTER );
@@ -27,6 +28,53 @@ int DisplayFile( LPCTSTR lpszFileText )
 	// Loop through all tags
 	while( lpszStartOfTag )
 	{
+		// Calculate length of text between this tag and previous
+		dwTextLength = ( ( lpszStartOfTag - lpszEndOfTag ) - sizeof( char ) );
+
+		// See if there is any text between this tag and previous
+		if( dwTextLength > 0 )
+		{
+			// There is some text between this tag and previous
+
+			// Ensure that text length is less then maximum
+			if( dwTextLength > dwMaxItemLength )
+			{
+				// Text length is greater then maximum
+
+				// Free string memory
+				delete [] lpszItem;
+
+				// Update maximum
+				dwMaxItemLength = dwTextLength;
+
+				// Re-allocate string memory
+				lpszItem = new char[ dwMaxItemLength + sizeof( char ) ];
+
+			} // End of tex length is greater then maximum
+
+			// Store text
+			lstrcpyn( lpszItem, ( lpszEndOfTag + sizeof( char ) ), ( dwTextLength + sizeof( char ) ) );
+
+			// Remove spaces from end of text
+			while( lpszItem[ lstrlen( lpszItem ) - sizeof( char ) ] == ASCII_SPACE_CHARACTER )
+			{
+				// Remove space from end of text
+				lpszItem[ lstrlen( lpszItem ) - sizeof( char ) ] = ( char )NULL;
+
+			}; // End of loop to remove spaces from end of text
+
+			// Ensure that text is not empty
+			if( lpszItem[ 0 ] )
+			{
+				// Text is not empty
+
+				// Add text to list box window
+				SendMessage( g_hWndListBox, LB_ADDSTRING, ( WPARAM )NULL, ( LPARAM )lpszItem );
+
+			} // End of text is not empty
+
+		} // End of there is some text between this tag and previous
+
 		// Find end of tag
 		lpszEndOfTag = strchr( lpszStartOfTag, ASCII_GREATER_THAN_CHARACTER );
 
@@ -34,26 +82,26 @@ int DisplayFile( LPCTSTR lpszFileText )
 		dwTagLength = ( ( lpszEndOfTag - lpszStartOfTag ) + sizeof( char ) );
 
 		// Ensure that tag length is less then maximum
-		if( dwTagLength > dwMaxTagLength )
+		if( dwTagLength > dwMaxItemLength )
 		{
 			// Tag length is greater then maximum
 
 			// Free string memory
-			delete [] lpszTag;
+			delete [] lpszItem;
 
 			// Update maximum
-			dwMaxTagLength = dwTagLength;
+			dwMaxItemLength = dwTagLength;
 
 			// Re-allocate string memory
-			lpszTag = new char[ dwMaxTagLength + sizeof( char ) ];
+			lpszItem = new char[ dwMaxItemLength + sizeof( char ) ];
 
 		} // End of tag length is greater then maximum
 
 		// Store tag
-		lstrcpyn( lpszTag, lpszStartOfTag, ( dwTagLength + sizeof( char ) ) );
+		lstrcpyn( lpszItem, lpszStartOfTag, ( dwTagLength + sizeof( char ) ) );
 
 		// Add tag to list box window
-		SendMessage( g_hWndListBox, LB_ADDSTRING, ( WPARAM )NULL, ( LPARAM )lpszTag );
+		SendMessage( g_hWndListBox, LB_ADDSTRING, ( WPARAM )NULL, ( LPARAM )lpszItem );
 
 		// Find start of next tag
 		lpszStartOfTag = strchr( lpszEndOfTag, ASCII_LESS_THAN_CHARACTER );
@@ -64,7 +112,7 @@ int DisplayFile( LPCTSTR lpszFileText )
 	}; // End of loop through all tags
 
 	// Free string memory
-	delete [] lpszTag;
+	delete [] lpszItem;
 
 	return nResult;
 

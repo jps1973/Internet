@@ -14,6 +14,7 @@
 #define ASCII_FULL_STOP_CHARACTER												'.'
 #define ASCII_GREATER_THAN_CHARACTER											'>'
 #define ASCII_LESS_THAN_CHARACTER												'<'
+#define ASCII_SPACE_CHARACTER													' '
 
 #define ASCII_BACK_SLASH_STRING													"\\"
 
