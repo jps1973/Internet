@@ -11,6 +11,7 @@
 
 #include "FileClass.h"
 #include "InternetClass.h"
+#include "TreeViewWindow.h"
 
 #define MAIN_WINDOW_CLASS_NAME													"Main Internet Window Class"
 

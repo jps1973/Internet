@@ -7,6 +7,7 @@ HWND g_hWndButton;
 HWND g_hWndEdit;
 HWND g_hWndListBox;
 HWND g_hWndStatusBar;
+HWND g_hWndTreeView;
 Internet g_internet;
 
 int DisplayFile( LPCTSTR lpszFileText )
@@ -102,6 +103,9 @@ int DisplayFile( LPCTSTR lpszFileText )
 
 		// Add tag to list box window
 		SendMessage( g_hWndListBox, LB_ADDSTRING, ( WPARAM )NULL, ( LPARAM )lpszItem );
+
+		// Add tag to tree view window
+		TreeViewWindowAddTag( g_hWndTreeView, lpszItem );
 
 		// Find start of next tag
 		lpszStartOfTag = strchr( lpszEndOfTag, ASCII_LESS_THAN_CHARACTER );
@@ -332,37 +336,47 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 					// Set button window font
 					SendMessage( g_hWndButton, WM_SETFONT, ( WPARAM )hFont, ( LPARAM )TRUE );
 
-					// Create list box window
-					g_hWndListBox = CreateWindowEx( LIST_BOX_WINDOW_EXTENDED_STYLE, WC_LISTBOX, LIST_BOX_WINDOW_TEXT, LIST_BOX_WINDOW_STYLE, 0, 0, 0, 0, hWnd, ( HMENU )NULL, hInstance, NULL );
-
-					// Ensure that list box window was created
-					if( g_hWndListBox )
+					// Create tree view window
+					g_hWndTreeView = TreeViewWindowCreate( hWnd, hInstance );
+					
+					// Ensure that tree view window was created
+					if( g_hWndTreeView )
 					{
-						// Successfully created list box window
+						// Successfully created tree view window
 
-						// Set list box window font
-						SendMessage( g_hWndListBox, WM_SETFONT, ( WPARAM )hFont, ( LPARAM )TRUE );
+						// Create list box window
+						g_hWndListBox = CreateWindowEx( LIST_BOX_WINDOW_EXTENDED_STYLE, WC_LISTBOX, LIST_BOX_WINDOW_TEXT, LIST_BOX_WINDOW_STYLE, 0, 0, 0, 0, hWnd, ( HMENU )NULL, hInstance, NULL );
 
-						// Create status bar window
-						g_hWndStatusBar = CreateWindowEx( STATUS_BAR_WINDOW_EXTENDED_STYLE, STATUSCLASSNAME, STATUS_BAR_WINDOW_TEXT, STATUS_BAR_WINDOW_STYLE, 0, 0, 0, 0, hWnd, ( HMENU )NULL, hInstance, NULL );
-
-						// Ensure that status bar window was created
-						if( g_hWndStatusBar )
+						// Ensure that list box window was created
+						if( g_hWndListBox )
 						{
-							// Successfully created status bar window
+							// Successfully created list box window
 
-							// Set status bar window font
-							SendMessage( g_hWndStatusBar, WM_SETFONT, ( WPARAM )hFont, ( LPARAM )TRUE );
+							// Set list box window font
+							SendMessage( g_hWndListBox, WM_SETFONT, ( WPARAM )hFont, ( LPARAM )TRUE );
 
-							// Select edit window text
-							SendMessage( g_hWndEdit, EM_SETSEL, ( WPARAM )0, ( LPARAM )-1 );
+							// Create status bar window
+							g_hWndStatusBar = CreateWindowEx( STATUS_BAR_WINDOW_EXTENDED_STYLE, STATUSCLASSNAME, STATUS_BAR_WINDOW_TEXT, STATUS_BAR_WINDOW_STYLE, 0, 0, 0, 0, hWnd, ( HMENU )NULL, hInstance, NULL );
 
-							// Focus on edit window
-							SetFocus( g_hWndEdit );
+							// Ensure that status bar window was created
+							if( g_hWndStatusBar )
+							{
+								// Successfully created status bar window
 
-						} // End of successfully created status bar window
+								// Set status bar window font
+								SendMessage( g_hWndStatusBar, WM_SETFONT, ( WPARAM )hFont, ( LPARAM )TRUE );
 
-					} // End of successfully created list box window
+								// Select edit window text
+								SendMessage( g_hWndEdit, EM_SETSEL, ( WPARAM )0, ( LPARAM )-1 );
+
+								// Focus on edit window
+								SetFocus( g_hWndEdit );
+
+							} // End of successfully created status bar window
+
+						} // End of successfully created list box window
+
+					} // End of successfully created tree view window
 
 				} // End of successfully created button window
 
@@ -382,6 +396,7 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			int nClientHeight;
 			RECT rcStatus;
 			int nStatusWindowHeight;
+			int nTreeViewWindowHeight;
 			int nListBoxWindowHeight;
 			int nEditWindowWidth;
 
@@ -397,13 +412,15 @@ LRESULT CALLBACK WndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 
 			// Calculate window sizes
 			nStatusWindowHeight		= ( rcStatus.bottom - rcStatus.top );
-			nListBoxWindowHeight	= ( nClientHeight - ( BUTTON_WINDOW_HEIGHT + nStatusWindowHeight ) + WINDOW_BORDER_HEIGHT );
+			nTreeViewWindowHeight	= ( ( nClientHeight - ( BUTTON_WINDOW_HEIGHT + nStatusWindowHeight ) + WINDOW_BORDER_HEIGHT ) / 2 );
+			nListBoxWindowHeight	= ( ( nClientHeight - ( BUTTON_WINDOW_HEIGHT + nStatusWindowHeight ) + WINDOW_BORDER_HEIGHT + WINDOW_BORDER_HEIGHT ) - nTreeViewWindowHeight );
 			nEditWindowWidth		= ( ( nClientWidth - BUTTON_WINDOW_WIDTH ) + WINDOW_BORDER_WIDTH );
 
 			// Move control windows
 			MoveWindow( g_hWndEdit, 0, 0, nEditWindowWidth, BUTTON_WINDOW_HEIGHT, TRUE );
 			MoveWindow( g_hWndButton, ( nEditWindowWidth - WINDOW_BORDER_WIDTH ), 0, BUTTON_WINDOW_WIDTH, BUTTON_WINDOW_HEIGHT, TRUE );
-			MoveWindow( g_hWndListBox, 0, ( BUTTON_WINDOW_HEIGHT - WINDOW_BORDER_HEIGHT ), nClientWidth, nListBoxWindowHeight, TRUE );
+			MoveWindow( g_hWndTreeView, 0, ( BUTTON_WINDOW_HEIGHT - WINDOW_BORDER_HEIGHT ), nClientWidth, nTreeViewWindowHeight, TRUE );
+			MoveWindow( g_hWndListBox, 0, ( ( BUTTON_WINDOW_HEIGHT - ( WINDOW_BORDER_HEIGHT + WINDOW_BORDER_HEIGHT ) ) + nTreeViewWindowHeight ), nClientWidth, nListBoxWindowHeight, TRUE );
 
 			// Break out of switch
 			break;
