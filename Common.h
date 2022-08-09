@@ -10,9 +10,12 @@
 #define WINDOW_BORDER_HEIGHT													GetSystemMetrics( SM_CYBORDER )
 
 #define ASCII_BACK_SLASH_CHARACTER												'\\'
+#define ASCII_COMMA_CHARACTER													','
+#define ASCII_EQUALS_CHARACTER													'='
 #define ASCII_FORWARD_SLASH_CHARACTER											'/'
 #define ASCII_FULL_STOP_CHARACTER												'.'
 #define ASCII_GREATER_THAN_CHARACTER											'>'
+#define ASCII_INVERTED_COMMA_CHARACTER											'\"'
 #define ASCII_LESS_THAN_CHARACTER												'<'
 #define ASCII_SPACE_CHARACTER													' '
 
