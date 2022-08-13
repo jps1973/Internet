@@ -2,7 +2,7 @@
 
 #include "TreeViewWindow.h"
 
-void TreeViewWindowAddTag( HWND hWndTreeView, LPCTSTR lpszTag )
+void TreeViewWindowAddTag( HWND hWndTreeView, LPCTSTR lpszTag, LPCTSTR lpszParentUrl )
 {
 	LPTSTR lpszEndOfTagName;
 
@@ -29,7 +29,7 @@ void TreeViewWindowAddTag( HWND hWndTreeView, LPCTSTR lpszTag )
 			// This is an anchor tag
 
 			// Add tag
-			TreeViewWindowAddTag( hWndTreeView, lpszTag, TREE_VIEW_WINDOW_ANCHOR_TAG_HEADER, HTML_TAG_ATTRIBUTE_HREF );
+			TreeViewWindowAddTag( hWndTreeView, lpszTag, TREE_VIEW_WINDOW_ANCHOR_TAG_HEADER, HTML_TAG_ATTRIBUTE_HREF, lpszParentUrl );
 
 		} // End of this is an anchor tag
 		else if( lstrcmpi( lpszTagName, HTML_TAG_TYPE_IMAGE ) == 0 )
@@ -37,7 +37,7 @@ void TreeViewWindowAddTag( HWND hWndTreeView, LPCTSTR lpszTag )
 			// This is an image tag
 
 			// Add tag
-			TreeViewWindowAddTag( hWndTreeView, lpszTag, TREE_VIEW_WINDOW_IMAGE_TAG_HEADER, HTML_TAG_ATTRIBUTE_SOURCE );
+			TreeViewWindowAddTag( hWndTreeView, lpszTag, TREE_VIEW_WINDOW_IMAGE_TAG_HEADER, HTML_TAG_ATTRIBUTE_SOURCE, lpszParentUrl );
 
 		} // End of this is an image tag
 
@@ -48,7 +48,7 @@ void TreeViewWindowAddTag( HWND hWndTreeView, LPCTSTR lpszTag )
 
 } // End of function TreeViewWindowAddTag
 
-void TreeViewWindowAddTag( HWND hWndTreeView, LPCTSTR lpszTag, LPCTSTR lpszHeader, LPCTSTR lpszAttributeName )
+void TreeViewWindowAddTag( HWND hWndTreeView, LPCTSTR lpszTag, LPCTSTR lpszHeader, LPCTSTR lpszAttributeName, LPCTSTR lpszParentUrl )
 {
 	// Allocate string memory
 	LPTSTR lpszAttributeValue = new char[ STRING_LENGTH ];
@@ -60,6 +60,12 @@ void TreeViewWindowAddTag( HWND hWndTreeView, LPCTSTR lpszTag, LPCTSTR lpszHeade
 		TVINSERTSTRUCT tvis;
 		HTREEITEM htiHeader;
 
+		// Allocate string memory
+		LPTSTR lpszAbsoluteUrl = new char[ STRING_LENGTH ];
+
+		// Get absolute url from attribute
+		HtmlGetAbsoluteUrl( lpszAttributeValue, lpszParentUrl, lpszAbsoluteUrl );
+
 		// Get header item
 		htiHeader = TreeViewWindowGetHeader( hWndTreeView, lpszHeader );
 
@@ -70,7 +76,7 @@ void TreeViewWindowAddTag( HWND hWndTreeView, LPCTSTR lpszTag, LPCTSTR lpszHeade
 		tvis.hParent		= htiHeader;
 		tvis.hInsertAfter	= TVI_SORT;
 		tvis.item.mask		= TVIF_TEXT;
-		tvis.item.pszText	= ( LPTSTR )lpszAttributeValue;
+		tvis.item.pszText	= ( LPTSTR )lpszAbsoluteUrl;
 
 		// Add tag to tree view window
 		SendMessage( hWndTreeView, TVM_INSERTITEM, ( WPARAM )0, ( LPARAM )&tvis );

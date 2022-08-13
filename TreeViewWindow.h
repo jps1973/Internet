@@ -19,9 +19,9 @@
 #define TREE_VIEW_WINDOW_ANCHOR_TAG_HEADER										"Anchor"
 #define TREE_VIEW_WINDOW_IMAGE_TAG_HEADER										"Image"
 
-void TreeViewWindowAddTag( HWND hWndTreeView, LPCTSTR lpszTag );
+void TreeViewWindowAddTag( HWND hWndTreeView, LPCTSTR lpszTag, LPCTSTR lpszParentUrl );
 
-void TreeViewWindowAddTag( HWND hWndTreeView, LPCTSTR lpszTag, LPCTSTR lpszHeader, LPCTSTR lpszAttributeName );
+void TreeViewWindowAddTag( HWND hWndTreeView, LPCTSTR lpszTag, LPCTSTR lpszHeader, LPCTSTR lpszAttributeName, LPCTSTR lpszParentUrl );
 
 HWND TreeViewWindowCreate( HWND hWndParent, HINSTANCE hInstance );
 

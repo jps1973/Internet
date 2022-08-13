@@ -10,7 +10,7 @@ HWND g_hWndStatusBar;
 HWND g_hWndTreeView;
 Internet g_internet;
 
-int DisplayFile( LPCTSTR lpszFileText )
+int DisplayFile( LPCTSTR lpszFileText, LPCTSTR lpszParentUrl )
 {
 	int nResult = 0;
 
@@ -105,7 +105,7 @@ int DisplayFile( LPCTSTR lpszFileText )
 		SendMessage( g_hWndListBox, LB_ADDSTRING, ( WPARAM )NULL, ( LPARAM )lpszItem );
 
 		// Add tag to tree view window
-		TreeViewWindowAddTag( g_hWndTreeView, lpszItem );
+		TreeViewWindowAddTag( g_hWndTreeView, lpszItem, lpszParentUrl );
 
 		// Find start of next tag
 		lpszStartOfTag = strchr( lpszEndOfTag, ASCII_LESS_THAN_CHARACTER );
@@ -169,7 +169,7 @@ BOOL DownloadFile( LPCTSTR lpszUrl )
 					lpszLocalFileText[ dwLocalFileSize ] = ( char )NULL;
 
 					// Display local file
-					nTagCount = DisplayFile( lpszLocalFileText );
+					nTagCount = DisplayFile( lpszLocalFileText, lpszUrl );
 
 					// Format status message
 					wsprintf( lpszStatus, SUCCESSFULLY_DOWNLOADED_FILE_STATUS_MESSAGE_FORMAT_STRING, lpszUrl, lpszLocalFilePath, nTagCount );
