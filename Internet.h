@@ -6,6 +6,8 @@
 #include "Common.h"
 #include "Resource.h"
 
+#include "ButtonWindow.h"
+#include "EditWindow.h"
 #include "ListBoxWindow.h"
 #include "StatusBarWindow.h"
 

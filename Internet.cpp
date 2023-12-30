@@ -2,6 +2,28 @@
 
 #include "Internet.h"
 
+void EditWindowUpdateFunction( int nTextLength )
+{
+	// See if edit window contains text
+	if( nTextLength > 0 )
+	{
+		// Edit window contains text
+
+		// Enable button window
+		ButtonWindowEnable( TRUE );
+
+	} // End of edit window contains text
+	else
+	{
+		// Edit window is empty
+
+		// Disable button window
+		ButtonWindowEnable( FALSE );
+
+	} // End of edit window is empty
+
+} // End of function EditWindowUpdateFunction
+
 void DoubleClickFunction( LPCTSTR lpszItemText )
 {
 	// Display item text
@@ -60,28 +82,48 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			// Get font
 			hFont = ( HFONT )GetStockObject( DEFAULT_GUI_FONT );
 
-			// Create list box window
-			if( ListBoxWindowCreate( hWndMain, hInstance ) )
+			// Create edit window
+			if( EditWindowCreate( hWndMain, hInstance ) )
 			{
-				// Successfully created list box window
+				// Successfully created edit window
 
-				// Set list box window font
-				ListBoxWindowSetFont( hFont );
+				// Set edit window font
+				EditWindowSetFont( hFont );
 
-				// Create status bar window
-				if( StatusBarWindowCreate( hWndMain, hInstance ) )
+				// Create button window
+				if( ButtonWindowCreate( hWndMain, hInstance ) )
 				{
-					// Successfully created status bar window
+					// Successfully created button window
 
-					// Set status bar window font
-					StatusBarWindowSetFont( hFont );
+					// Set button window font
+					ButtonWindowSetFont( hFont );
 
-					// Set status bar window text
-					StatusBarWindowSetText( "Hello" );
+					// Create list box window
+					if( ListBoxWindowCreate( hWndMain, hInstance ) )
+					{
+						// Successfully created list box window
 
-				} // End of successfully created status bar window
+						// Set list box window font
+						ListBoxWindowSetFont( hFont );
 
-			} // End of successfully created list box window
+						// Create status bar window
+						if( StatusBarWindowCreate( hWndMain, hInstance ) )
+						{
+							// Successfully created status bar window
+
+							// Set status bar window font
+							StatusBarWindowSetFont( hFont );
+
+							// Select edit window text
+							EditWindowSelect();
+
+						} // End of successfully created status bar window
+
+					} // End of successfully created list box window
+
+				} // End of successfully created list box window
+
+			} // End of successfully created edit window
 
 			// Break out of switch
 			break;
@@ -95,6 +137,9 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			RECT rcStatus;
 			int nStatusWindowHeight;
 			int nListBoxWindowHeight;
+			int nEditWindowWidth;
+			int nButtonWindowLeft;
+			int nListBoxWindowTop;
 
 			// Store client width and height
 			nClientWidth	= ( int )LOWORD( lParam );
@@ -108,10 +153,17 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 
 			// Calculate window sizes
 			nStatusWindowHeight		= ( rcStatus.bottom - rcStatus.top );
-			nListBoxWindowHeight	= ( nClientHeight - nStatusWindowHeight );
+			nListBoxWindowHeight	= ( nClientHeight - ( BUTTON_WINDOW_HEIGHT + nStatusWindowHeight ) + WINDOW_BORDER_HEIGHT );
+			nEditWindowWidth		= ( ( nClientWidth - BUTTON_WINDOW_WIDTH ) + WINDOW_BORDER_WIDTH );
 
-			// Move list box window
-			ListBoxWindowMove( 0, 0, nClientWidth, nListBoxWindowHeight, TRUE );
+			// Calculate window positions
+			nButtonWindowLeft		= ( nEditWindowWidth - WINDOW_BORDER_WIDTH );
+			nListBoxWindowTop		= ( BUTTON_WINDOW_HEIGHT - WINDOW_BORDER_HEIGHT );
+
+			// Move control windoww
+			EditWindowMove( 0, 0, nEditWindowWidth, BUTTON_WINDOW_HEIGHT );
+			ButtonWindowMove( nButtonWindowLeft, 0, BUTTON_WINDOW_WIDTH, BUTTON_WINDOW_HEIGHT );
+			ListBoxWindowMove( 0, nListBoxWindowTop, nClientWidth, nListBoxWindowHeight, TRUE );
 
 			// Break out of switch
 			break;
@@ -121,8 +173,8 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 		{
 			// An activate message
 
-			// Focus on list box window
-			ListBoxWindowSetFocus();
+			// Focus on edit window
+			EditWindowSetFocus();
 
 			// Break out of switch
 			break;
@@ -200,6 +252,30 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			// Select command
 			switch( LOWORD( wParam ) )
 			{
+				case BUTTON_WINDOW_ID:
+				{
+					// A button window command
+
+					// Allocate string memory
+					LPTSTR lpszUrl = new char[ STRING_LENGTH ];
+
+					// Get edit window text
+					if( EditWindowGetText( lpszUrl ) )
+					{
+						// Successfully got edit window text
+
+						// Display url
+						MessageBox( hWndMain, lpszUrl, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+
+					} // End of successfully got edit window text
+
+					// Free string memory
+					delete [] lpszUrl;
+
+					// Break out of switch
+					break;
+
+				} // End of a button window command
 				case IDM_FILE_EXIT:
 				{
 					// A file exit command
@@ -226,7 +302,23 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 				{
 					// Default command
 
-					// See if command message is from list box window
+					// See if command message is from edit window
+					if( IsEditWindow( ( HWND )lParam ) )
+					{
+						// Command message is from edit window
+
+						// Handle command message from edit window
+						if( !( EditWindowHandleCommandMessage( wParam, lParam, &EditWindowUpdateFunction ) ) )
+						{
+							// Command message was not handled from edit window
+
+							// Call default procedure
+							lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
+
+						} // End of command message was not handled from edit window
+
+					} // End of command message is from edit window
+					else
 					if( IsListBoxWindow( ( HWND )lParam ) )
 					{
 						// Command message is from list box window
