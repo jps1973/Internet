@@ -1,6 +1,6 @@
-// Template.cpp
+// Internet.cpp
 
-#include "Template.h"
+#include "Internet.h"
 
 void DoubleClickFunction( LPCTSTR lpszItemText )
 {
