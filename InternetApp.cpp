@@ -259,15 +259,42 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 					// Allocate string memory
 					LPTSTR lpszUrl = new char[ STRING_LENGTH ];
 
-					// Get edit window text
+					// Get url from edit window
 					if( EditWindowGetText( lpszUrl ) )
 					{
-						// Successfully got edit window text
+						// Successfully got url from edit window
 
-						// Display url
-						MessageBox( hWndMain, lpszUrl, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+						// Allocate strinf memory
+						LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
+						
+						// Download file
+						if( InternetDownloadFile( lpszUrl, lpszLocalFilePath ) )
+						{
+							// Successfully downloaded file
 
-					} // End of successfully got edit window text
+							// Display url
+							MessageBox( hWndMain, lpszLocalFilePath, lpszUrl, ( MB_OK | MB_ICONINFORMATION ) );
+
+						} // End of successfully downloaded file
+						else
+						{
+							// Unable to donload file
+
+							// Allocate string memory
+							LPTSTR lpszErrorMessage = new char[ STRING_LENGTH ];
+
+							// Format error message
+							wsprintf( lpszErrorMessage, INTERNET_UNABLE_TO_DOWNLOAD_FILE_ERROR_MESSAGE_FORMAT_STRING, lpszUrl );
+
+							// Display error message
+							MessageBox( NULL, lpszErrorMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
+
+							// Free string memory
+							delete [] lpszErrorMessage;
+
+						} // End of unable to connect to internet
+
+					} // End of successfully got url from edit window
 
 					// Free string memory
 					delete [] lpszUrl;
@@ -449,127 +476,144 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 {
 	MSG msg;
 
-	WNDCLASSEX wcMain;
-
 	// Clear message structure
 	ZeroMemory( &msg, sizeof( msg ) );
 
-	// Clear window class structure
-	ZeroMemory( &wcMain, sizeof( wcMain ) );
-
-	// Initialise main window class structure
-	wcMain.cbSize			= sizeof( WNDCLASSEX );
-	wcMain.lpszClassName	= MAIN_WINDOW_CLASS_NAME;
-	wcMain.lpfnWndProc		= MainWndProc;
-	wcMain.hInstance		= hInstance;
-	wcMain.style			= MAIN_WINDOW_CLASS_STYLE;
-	wcMain.hIcon			= MAIN_WINDOW_CLASS_ICON;
-	wcMain.hCursor			= MAIN_WINDOW_CLASS_CURSOR;
-	wcMain.hbrBackground	= MAIN_WINDOW_CLASS_BACKGROUND;
-	wcMain.lpszMenuName		= MAIN_WINDOW_CLASS_MENU_NAME;
-	wcMain.hIconSm			= MAIN_WINDOW_CLASS_ICON;
-
-	// Register main window class
-	if( RegisterClassEx( &wcMain ) )
+	// Connect to internet
+	if( InternetConnect() )
 	{
-		// Successfully registered main window class
-		HWND hWndMain;
+		// Successfully connected to internet
+		WNDCLASSEX wcMain;
 
-		// Create main window
-		hWndMain = CreateWindowEx( MAIN_WINDOW_EXTENDED_STYLE, MAIN_WINDOW_CLASS_NAME, MAIN_WINDOW_TEXT, MAIN_WINDOW_STYLE, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
+		// Clear window class structure
+		ZeroMemory( &wcMain, sizeof( wcMain ) );
 
-		// Ensure that main window was created
-		if( hWndMain )
+		// Initialise main window class structure
+		wcMain.cbSize			= sizeof( WNDCLASSEX );
+		wcMain.lpszClassName	= MAIN_WINDOW_CLASS_NAME;
+		wcMain.lpfnWndProc		= MainWndProc;
+		wcMain.hInstance		= hInstance;
+		wcMain.style			= MAIN_WINDOW_CLASS_STYLE;
+		wcMain.hIcon			= MAIN_WINDOW_CLASS_ICON;
+		wcMain.hCursor			= MAIN_WINDOW_CLASS_CURSOR;
+		wcMain.hbrBackground	= MAIN_WINDOW_CLASS_BACKGROUND;
+		wcMain.lpszMenuName		= MAIN_WINDOW_CLASS_MENU_NAME;
+		wcMain.hIconSm			= MAIN_WINDOW_CLASS_ICON;
+
+		// Register main window class
+		if( RegisterClassEx( &wcMain ) )
 		{
-			// Successfully created main window
-			HMENU hMenuSystem;
-			LPWSTR *lpszArgumentList;
-			int nArgumentCount;
+			// Successfully registered main window class
+			HWND hWndMain;
 
-			// Get system menu
-			hMenuSystem = GetSystemMenu( hWndMain, FALSE );
+			// Create main window
+			hWndMain = CreateWindowEx( MAIN_WINDOW_EXTENDED_STYLE, MAIN_WINDOW_CLASS_NAME, MAIN_WINDOW_TEXT, MAIN_WINDOW_STYLE, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 
-			// Add separator to system menu
-			InsertMenu( hMenuSystem, SYSTEM_MENU_SEPARATOR_ITEM_POSITION, ( MF_BYPOSITION | MF_SEPARATOR ), 0, NULL );
-
-			// Add about item to system menu
-			InsertMenu( hMenuSystem, SYSTEM_MENU_ABOUT_ITEM_POSITION, MF_BYPOSITION, IDM_HELP_ABOUT, SYSTEM_MENU_ABOUT_ITEM_TEXT );
-
-			// Get argument list
-			lpszArgumentList = CommandLineToArgvW( GetCommandLineW(), &nArgumentCount );
-
-			// Ensure that argument list was got
-			if( lpszArgumentList )
+			// Ensure that main window was created
+			if( hWndMain )
 			{
-				// Successfully got argument list
-				int nWhichArgument;
-				int nSizeNeeded;
-				int nWideArgumentLength;
+				// Successfully created main window
+				HMENU hMenuSystem;
+				LPWSTR *lpszArgumentList;
+				int nArgumentCount;
 
-				// Allocate string memory
-				LPTSTR lpszArgument = new char[ STRING_LENGTH ];
+				// Get system menu
+				hMenuSystem = GetSystemMenu( hWndMain, FALSE );
 
-				// Loop through arguments
-				for( nWhichArgument = 1; nWhichArgument < nArgumentCount; nWhichArgument ++ )
+				// Add separator to system menu
+				InsertMenu( hMenuSystem, SYSTEM_MENU_SEPARATOR_ITEM_POSITION, ( MF_BYPOSITION | MF_SEPARATOR ), 0, NULL );
+
+				// Add about item to system menu
+				InsertMenu( hMenuSystem, SYSTEM_MENU_ABOUT_ITEM_POSITION, MF_BYPOSITION, IDM_HELP_ABOUT, SYSTEM_MENU_ABOUT_ITEM_TEXT );
+
+				// Get argument list
+				lpszArgumentList = CommandLineToArgvW( GetCommandLineW(), &nArgumentCount );
+
+				// Ensure that argument list was got
+				if( lpszArgumentList )
 				{
-					// Get wide argument length
-					nWideArgumentLength = lstrlenW( lpszArgumentList[ nWhichArgument ] );
+					// Successfully got argument list
+					int nWhichArgument;
+					int nSizeNeeded;
+					int nWideArgumentLength;
 
-					// Get size required for argument
-					nSizeNeeded = WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ nWhichArgument ], nWideArgumentLength, NULL, 0, NULL, NULL );
+					// Allocate string memory
+					LPTSTR lpszArgument = new char[ STRING_LENGTH ];
 
-					// Convert argument to ansi
-					WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ nWhichArgument ], nWideArgumentLength, lpszArgument, nSizeNeeded, NULL, NULL );
+					// Loop through arguments
+					for( nWhichArgument = 1; nWhichArgument < nArgumentCount; nWhichArgument ++ )
+					{
+						// Get wide argument length
+						nWideArgumentLength = lstrlenW( lpszArgumentList[ nWhichArgument ] );
 
-					// Terminate argument
-					lpszArgument[ nSizeNeeded ] = ( char )NULL;
+						// Get size required for argument
+						nSizeNeeded = WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ nWhichArgument ], nWideArgumentLength, NULL, 0, NULL, NULL );
 
-					// Add argument to list box window
-					ListBoxWindowAddString( lpszArgument );
+						// Convert argument to ansi
+						WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ nWhichArgument ], nWideArgumentLength, lpszArgument, nSizeNeeded, NULL, NULL );
 
-				}; // End of loop through arguments
+						// Terminate argument
+						lpszArgument[ nSizeNeeded ] = ( char )NULL;
 
-				// Free string memory
-				delete [] lpszArgument;
+						// Add argument to list box window
+						ListBoxWindowAddString( lpszArgument );
 
-			} // End of successfully got argument list
+					}; // End of loop through arguments
 
-			// Show main window
-			ShowWindow( hWndMain, nCmdShow );
+					// Free string memory
+					delete [] lpszArgument;
 
-			// Update main window
-			UpdateWindow( hWndMain );
+				} // End of successfully got argument list
 
-			// Main message loop
-			while( GetMessage( &msg, NULL, 0, 0 ) > 0 )
+				// Show main window
+				ShowWindow( hWndMain, nCmdShow );
+
+				// Update main window
+				UpdateWindow( hWndMain );
+
+				// Main message loop
+				while( GetMessage( &msg, NULL, 0, 0 ) > 0 )
+				{
+					// Translate message
+					TranslateMessage( &msg );
+
+					// Dispatch message
+					DispatchMessage( &msg );
+
+				}; // End of main message loop
+
+			} // End of successfully created main window
+			else
 			{
-				// Translate message
-				TranslateMessage( &msg );
+				// Unable to create main window
 
-				// Dispatch message
-				DispatchMessage( &msg );
+				// Display error message
+				MessageBox( NULL, UNABLE_TO_CREATE_MAIN_WINDOW_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
 
-			}; // End of main message loop
+			} // End of unable to create main window
 
-		} // End of successfully created main window
+		} // End of successfully registered main window class
 		else
 		{
-			// Unable to create main window
+			// Unable to register main window class
 
 			// Display error message
-			MessageBox( NULL, UNABLE_TO_CREATE_MAIN_WINDOW_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
+			MessageBox( NULL, UNABLE_TO_REGISTER_MAIN_WINDOW_CLASS_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
 
-		} // End of unable to create main window
+		} // End of unable to register main window class
 
-	} // End of successfully registered main window class
+		// Close internet
+		InternetClose();
+
+	} // End of successfully connected to internet
 	else
 	{
-		// Unable to register main window class
+		// Unable to connect to internet
 
 		// Display error message
-		MessageBox( NULL, UNABLE_TO_REGISTER_MAIN_WINDOW_CLASS_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
+		MessageBox( NULL, INTERNET_UNABLE_TO_CONNECT_INTERNET_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
 
-	} // End of unable to register main window class
+	} // End of unable to connect to internet
 
 	return msg.wParam;
 
