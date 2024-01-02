@@ -13,6 +13,95 @@ void HtmlFileFreeMemory()
 
 } // End of function HtmlFileFreeMemory
 
+int HtmlFileProcessTags( void( lpTagFunction )( LPTSTR lpszTag ) )
+{
+	int nResult = 0;
+
+	DWORD dwTagLength;
+	DWORD dwMaximumTagLength = STRING_LENGTH;
+
+	LPTSTR lpszStartOfTag;
+	LPTSTR lpszEndOfTag;
+
+	// Allocate string memory
+	LPTSTR lpszTag = new char[ dwMaximumTagLength + sizeof( char ) ];
+
+	// Find start of first tag
+	lpszStartOfTag = strchr( g_lpszFileText, HTML_FILE_START_OF_TAG_CHARACTER );
+
+	// Loop through all tags
+	while( lpszStartOfTag )
+	{
+		// Find end of tag
+		lpszEndOfTag = strchr( lpszStartOfTag, HTML_FILE_END_OF_TAG_CHARACTER );
+
+		// Ensure that end of tag was found
+		if( lpszEndOfTag )
+		{
+			// Successfully found end of tag
+
+			// 01234567890
+			//   <qwer>
+			//   |    |
+			//   2    7
+
+			// Calculate tag length
+			dwTagLength = ( ( lpszEndOfTag - lpszStartOfTag ) + sizeof( char ) );
+
+			// Ensure that tag is not empty
+			if( dwTagLength > 0 )
+			{
+				// Tag is not empty
+
+				// Ensure that tag string is long enough
+				if( dwTagLength > dwMaximumTagLength )
+				{
+					// Tag string is not long enough
+
+					// Free string memory
+					delete [] lpszTag;
+
+					// Update maximum tag length
+					dwMaximumTagLength = dwTagLength;
+
+					// Re-allocate string memory
+					lpszTag = new char[ dwMaximumTagLength + sizeof( char ) ];
+
+				} // End of tag string is not long enough
+
+				// Store tag
+				lstrcpyn( lpszTag, lpszStartOfTag, ( dwTagLength + sizeof( char ) ) );
+
+				// Process tag
+				( *lpTagFunction )( lpszTag );
+
+				// Update return value
+				nResult ++;
+
+			} // End of tag is not empty
+
+			// Find start of next tag
+			lpszStartOfTag = strchr( lpszEndOfTag, HTML_FILE_START_OF_TAG_CHARACTER );
+
+		} // End of successfully found end of tag
+		else
+		{
+			// Unable to find end of tag
+
+			// Force exit from loop
+			lpszStartOfTag = NULL;
+
+		} // End of unable to find end of tag
+
+	}; // End of loop through all tags
+
+	// Free string memory
+	delete [] lpszTag;
+
+	return nResult;
+
+} // End of function HtmlFileProcessTags
+
 BOOL HtmlFileRead( LPCTSTR lpszFilePath )
 {
 	BOOL bResult = FALSE;
@@ -45,9 +134,6 @@ BOOL HtmlFileRead( LPCTSTR lpszFilePath )
 
 				// Terminate file text
 				g_lpszFileText[dwFileSize] = ( char )NULL;
-
-				// Display file text
-				MessageBox( NULL, g_lpszFileText, lpszFilePath, ( MB_OK | MB_ICONINFORMATION ) );
 
 				// Update return value
 				bResult = TRUE;

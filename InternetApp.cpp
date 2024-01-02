@@ -2,6 +2,13 @@
 
 #include "InternetApp.h"
 
+void TagFunction( LPTSTR lpszTag )
+{
+	// Add tag to list box window
+	ListBoxWindowAddString( lpszTag );
+
+} // End of function TagFunction
+
 void EditWindowUpdateFunction( int nTextLength )
 {
 	// See if edit window contains text
@@ -277,6 +284,8 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 							{
 								// Successfully read html file
 
+								// Process tags
+								HtmlFileProcessTags( &TagFunction );
 
 								// Free memory associated with html file
 								HtmlFileFreeMemory();
