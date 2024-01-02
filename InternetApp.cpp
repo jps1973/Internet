@@ -266,14 +266,22 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 
 						// Allocate strinf memory
 						LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
-						
+
 						// Download file
 						if( InternetDownloadFile( lpszUrl, lpszLocalFilePath ) )
 						{
 							// Successfully downloaded file
 
-							// Display url
-							MessageBox( hWndMain, lpszLocalFilePath, lpszUrl, ( MB_OK | MB_ICONINFORMATION ) );
+							// Read html file
+							if( HtmlFileRead( lpszLocalFilePath ) )
+							{
+								// Successfully read html file
+
+
+								// Free memory associated with html file
+								HtmlFileFreeMemory();
+
+							} // End of successfully read html file
 
 						} // End of successfully downloaded file
 						else
