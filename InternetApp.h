@@ -1,4 +1,4 @@
-// Internet.h
+// InternetApp.h
 
 #pragma once
 

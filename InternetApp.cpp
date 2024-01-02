@@ -1,6 +1,6 @@
-// Internet.cpp
+// InternetApp.cpp
 
-#include "Internet.h"
+#include "InternetApp.h"
 
 void EditWindowUpdateFunction( int nTextLength )
 {
