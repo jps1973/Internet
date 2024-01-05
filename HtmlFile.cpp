@@ -22,6 +22,7 @@ int HtmlFileProcessTags( void( lpTagFunction )( LPTSTR lpszTag ) )
 
 	LPTSTR lpszStartOfTag;
 	LPTSTR lpszEndOfTag;
+	LPTSTR lpszEndOfComment;
 
 	// Allocate string memory
 	LPTSTR lpszTag = new char[ dwMaximumTagLength + sizeof( char ) ];
@@ -32,8 +33,46 @@ int HtmlFileProcessTags( void( lpTagFunction )( LPTSTR lpszTag ) )
 	// Loop through all tags
 	while( lpszStartOfTag )
 	{
-		// Find end of tag
-		lpszEndOfTag = strchr( lpszStartOfTag, HTML_FILE_END_OF_TAG_CHARACTER );
+		// See if tag is a comment
+		if( memcmp( lpszStartOfTag, HTML_FILE_COMMENT_PREFIX, lstrlen( HTML_FILE_COMMENT_PREFIX ) ) == 0 )
+		{
+			// Tag is a comment
+	
+			//Find end of comment
+			lpszEndOfComment = strstr( lpszStartOfTag, HTML_FILE_COMMENT_SUFFIX );
+
+			// Ensure that end of comment was found
+			if( lpszEndOfComment )
+			{
+				// Successfully found end of comment
+
+				// 0123456789
+				//  <!-- -->
+				//  |    | |
+				//  1    6 8
+
+				// Update end of tag
+				lpszEndOfTag = ( ( lpszEndOfComment + lstrlen( HTML_FILE_COMMENT_SUFFIX ) ) );
+
+			} // End of successfully found end of comment
+			else
+			{
+				// Unable to find end of comment
+
+				// Force exit from loop
+				lpszStartOfTag = NULL;
+
+			} // End of unable to find end of comment
+
+		} // End of tag is a comment
+		else
+		{
+			// Tag is not a comment
+
+			// Find end of tag
+			lpszEndOfTag = strchr( lpszStartOfTag, HTML_FILE_END_OF_TAG_CHARACTER );
+
+		} // End of tag is not a comment
 
 		// Ensure that end of tag was found
 		if( lpszEndOfTag )

@@ -14,8 +14,15 @@ BOOL IsListBoxWindow( HWND hWnd )
 
 int ListBoxWindowAddString( LPCTSTR lpszString )
 {
+	int nResult;
+
 	// Add string to list box window
-	return ::SendMessage( g_hWndListBox, LB_ADDSTRING, ( WPARAM )NULL, ( LPARAM )lpszString );
+	nResult = ::SendMessage( g_hWndListBox, LB_ADDSTRING, ( WPARAM )NULL, ( LPARAM )lpszString );
+
+	// Update list box window
+	UpdateWindow( g_hWndListBox );
+
+	return nResult;
 
 } // End of function ListBoxWindowAddString
 
