@@ -4,8 +4,8 @@
 
 void TagFunction( LPTSTR lpszTag )
 {
-	// Add tag to list box window
-	ListBoxWindowAddString( lpszTag );
+	// Add tag to tree view window
+	TreeViewWindowAddString( lpszTag );
 
 } // End of function TagFunction
 
@@ -105,13 +105,13 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 					// Set button window font
 					ButtonWindowSetFont( hFont );
 
-					// Create list box window
-					if( ListBoxWindowCreate( hWndMain, hInstance ) )
+					// Create tree view window
+					if( TreeViewWindowCreate( hWndMain, hInstance ) )
 					{
-						// Successfully created list box window
+						// Successfully created tree view window
 
-						// Set list box window font
-						ListBoxWindowSetFont( hFont );
+						// Set tree view window font
+						TreeViewWindowSetFont( hFont );
 
 						// Create status bar window
 						if( StatusBarWindowCreate( hWndMain, hInstance ) )
@@ -126,9 +126,9 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 
 						} // End of successfully created status bar window
 
-					} // End of successfully created list box window
+					} // End of successfully created tree view window
 
-				} // End of successfully created list box window
+				} // End of successfully created tree view window
 
 			} // End of successfully created edit window
 
@@ -143,10 +143,10 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			int nClientHeight;
 			RECT rcStatus;
 			int nStatusWindowHeight;
-			int nListBoxWindowHeight;
+			int nTreeViewWindowHeight;
 			int nEditWindowWidth;
 			int nButtonWindowLeft;
-			int nListBoxWindowTop;
+			int nTreeViewWindowTop;
 
 			// Store client width and height
 			nClientWidth	= ( int )LOWORD( lParam );
@@ -160,17 +160,17 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 
 			// Calculate window sizes
 			nStatusWindowHeight		= ( rcStatus.bottom - rcStatus.top );
-			nListBoxWindowHeight	= ( nClientHeight - ( BUTTON_WINDOW_HEIGHT + nStatusWindowHeight ) + WINDOW_BORDER_HEIGHT );
+			nTreeViewWindowHeight	= ( nClientHeight - ( BUTTON_WINDOW_HEIGHT + nStatusWindowHeight ) + WINDOW_BORDER_HEIGHT );
 			nEditWindowWidth		= ( ( nClientWidth - BUTTON_WINDOW_WIDTH ) + WINDOW_BORDER_WIDTH );
 
 			// Calculate window positions
 			nButtonWindowLeft		= ( nEditWindowWidth - WINDOW_BORDER_WIDTH );
-			nListBoxWindowTop		= ( BUTTON_WINDOW_HEIGHT - WINDOW_BORDER_HEIGHT );
+			nTreeViewWindowTop		= ( BUTTON_WINDOW_HEIGHT - WINDOW_BORDER_HEIGHT );
 
 			// Move control windoww
 			EditWindowMove( 0, 0, nEditWindowWidth, BUTTON_WINDOW_HEIGHT );
 			ButtonWindowMove( nButtonWindowLeft, 0, BUTTON_WINDOW_WIDTH, BUTTON_WINDOW_HEIGHT );
-			ListBoxWindowMove( 0, nListBoxWindowTop, nClientWidth, nListBoxWindowHeight, TRUE );
+			TreeViewWindowMove( 0, nTreeViewWindowTop, nClientWidth, nTreeViewWindowHeight, TRUE );
 
 			// Break out of switch
 			break;
@@ -236,8 +236,8 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 					{
 						// Successfully got file path
 
-						// Add file path to list box window
-						ListBoxWindowAddString( lpszFilePath );
+						// Add file path to tree view window
+						TreeViewWindowAddString( lpszFilePath );
 
 					} // End of successfully got file path
 
@@ -363,29 +363,13 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 
 					} // End of command message is from edit window
 					else
-					if( IsListBoxWindow( ( HWND )lParam ) )
 					{
-						// Command message is from list box window
-
-						// Handle command message from list box window
-						if( !( ListBoxWindowHandleCommandMessage( wParam, lParam, &DoubleClickFunction, &SelectionChangedFunction ) ) )
-						{
-							// Command message was not handled from list box window
-
-							// Call default procedure
-							lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
-
-						} // End of command message was not handled from list box window
-
-					} // End of command message is from list box window
-					else
-					{
-						// Command message is not from list box window
+						// Command message is not from edit window
 
 						// Call default procedure
 						lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
 
-					} // End of command message is not from list box window
+					} // End of command message is not from edit window
 
 					// Break out of switch
 					break;
@@ -434,6 +418,42 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			break;
 
 		} // End of a system command message
+		case WM_NOTIFY:
+		{
+			// A notify message
+			LPNMHDR lpNmHdr;
+
+			// Get notify message handler
+			lpNmHdr = ( LPNMHDR )lParam;
+
+			// See if notify message is from tree view window
+			if( IsTreeViewWindow( lpNmHdr->hwndFrom ) )
+			{
+				// Notify message is from tree view window
+
+				if( !( TreeViewWindowHandleNotifyMessage( wParam, lParam, &DoubleClickFunction, &SelectionChangedFunction ) ) )
+				{
+					// Notify message was not handled from tree view window
+
+					// Call default procedure
+					lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
+
+				} // End of notify message was not handled from tree view window
+
+			} // End of notify message is from tree view window
+			else
+			{
+				// Notify message is not from tree view window
+
+				// Call default procedure
+				lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
+
+			} // End of notify message is not from tree view window
+
+			// Break out of switch
+			break;
+
+		} // End of a notify message
 		case WM_CONTEXTMENU:
 		{
 			// A context menu message
@@ -572,8 +592,8 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 						// Terminate argument
 						lpszArgument[ nSizeNeeded ] = ( char )NULL;
 
-						// Add argument to list box window
-						ListBoxWindowAddString( lpszArgument );
+						// Add argument to tree view window
+						TreeViewWindowAddString( lpszArgument );
 
 					}; // End of loop through arguments
 
