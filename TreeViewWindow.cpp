@@ -78,7 +78,7 @@ BOOL TreeViewWindowHandleNotifyMessage( WPARAM, LPARAM lParam, void( *lpDoubleCl
 			// A tree view window selection changed notification code
 
 			// Call selection changed function for selected item
-			TreeViewWindowProcessSelected( lpSelectionChangedFunction );
+			bResult = TreeViewWindowProcessSelected( lpSelectionChangedFunction );
 
 			// Break out of switch
 			break;
@@ -89,7 +89,7 @@ BOOL TreeViewWindowHandleNotifyMessage( WPARAM, LPARAM lParam, void( *lpDoubleCl
 			// A double click notification code
 
 			// Call double click function for selected item
-			TreeViewWindowProcessSelected( lpDoubleClickFunction );
+			bResult = TreeViewWindowProcessSelected( lpDoubleClickFunction );
 
 			// Break out of switch
 			break;
@@ -98,6 +98,25 @@ BOOL TreeViewWindowHandleNotifyMessage( WPARAM, LPARAM lParam, void( *lpDoubleCl
 		case NM_RCLICK:
 		{
 			// A right click notification code
+			HTREEITEM htiDropHighlighted;
+
+			// Get drop-highlighted item
+			htiDropHighlighted = ( HTREEITEM )SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_DROPHILITE, ( LPARAM )0 );
+
+			// Ensure that drop-highlighted item was got
+			if( htiDropHighlighted )
+			{
+				// Successfully got drop-highlighted item
+
+				// Select drop-highlighted item
+				SendMessage( g_hWndTreeView, TVM_SELECTITEM, ( WPARAM )TVGN_CARET, ( LPARAM )htiDropHighlighted );
+				// Note that if this isn't done then the last selected
+				// item will be highlighted
+
+				// Update return value
+				bResult = TRUE;
+
+			} // End of successfully got drop-highlighted item
 
 			// Break out of switch
 			break;
