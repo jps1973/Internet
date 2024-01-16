@@ -11,10 +11,14 @@
 #define HTML_FILE_START_OF_TAG_CHARACTER										'<'
 #define HTML_FILE_END_OF_TAG_CHARACTER											'>'
 
+#define HTML_FILE_END_OF_TAG_NAME_CHARACTERS									" >"
+
 #define HTML_FILE_COMMENT_PREFIX												"<!--"
 #define HTML_FILE_COMMENT_SUFFIX												"-->"
 
 void HtmlFileFreeMemory();
+
+BOOL HtmlFileGetTagName( LPCTSTR lpszTag, LPTSTR lpszTagName );
 
 int HtmlFileProcessTags( void( lpTagFunction )( LPTSTR lpszTag ) );
 

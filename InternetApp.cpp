@@ -4,8 +4,24 @@
 
 void TagFunction( LPTSTR lpszTag )
 {
+	// Allocate string memory
+	LPTSTR lpszTagName = new char[ lstrlen( lpszTag ) ];
+
 	// Add tag to tree view window
 	TreeViewWindowAddString( lpszTag );
+
+	// Get tag name
+	if( HtmlFileGetTagName( lpszTag, lpszTagName ) )
+	{
+		// Successfully got tag name
+
+		// Add tag name to tree view window
+		TreeViewWindowAddString( lpszTagName );
+
+	} // End of successfully got tag name
+	else
+		TreeViewWindowAddString( "Prob" );
+	
 
 } // End of function TagFunction
 

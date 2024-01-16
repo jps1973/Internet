@@ -13,6 +13,43 @@ void HtmlFileFreeMemory()
 
 } // End of function HtmlFileFreeMemory
 
+BOOL HtmlFileGetTagName( LPCTSTR lpszTag, LPTSTR lpszTagName )
+{
+	BOOL bResult = FALSE;
+
+	int nEndOfTagName;
+
+	// copy tag name
+	lstrcpy( lpszTagName, ( lpszTag + sizeof( char ) ) );
+
+	// Find end of tag name
+	nEndOfTagName = strcspn( lpszTagName, HTML_FILE_END_OF_TAG_NAME_CHARACTERS );
+
+	// Ensure that end of tag name was found
+	if( nEndOfTagName < lstrlen( lpszTagName ) )
+	{
+		// Successfully found end of tag name
+
+		// Terminate tag name
+		lpszTagName[ nEndOfTagName ] = ( char )NULL;
+
+		// Update return value
+		bResult = TRUE;
+
+	} // End of successfully found end of tag name
+	else
+	{
+		// Unable to find end of tag name
+
+		// Clear tag name
+		lpszTagName[ 0 ] = ( char )NULL;
+
+	} // End of unable to find end of tag name
+
+	return bResult;
+
+} // End of function HtmlFileGetTagName
+
 int HtmlFileProcessTags( void( lpTagFunction )( LPTSTR lpszTag ) )
 {
 	int nResult = 0;
