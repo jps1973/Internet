@@ -54,6 +54,62 @@ BOOL TreeViewWindowCreate( HWND hWndParent, HINSTANCE hInstance )
 
 } // End of function TreeViewWindowCreate
 
+HTREEITEM TreeViewWindowFindItem( LPCTSTR lpszRequiredItemText, HTREEITEM htiParent )
+{
+	HTREEITEM htiResult = NULL;
+
+	TVITEM tvi;
+
+	// Allocate string memory
+	LPTSTR lpszCurrentItemText = new char[ STRING_LENGTH ];
+
+	// Clear tree view item structure
+	ZeroMemory( &tvi, sizeof( tvi ) );
+
+	// Initialise tree view item structure
+	tvi.mask		= TVIF_TEXT;
+	tvi.pszText		= lpszCurrentItemText;
+	tvi.cchTextMax	= STRING_LENGTH;
+
+	// Get first tree item
+	tvi.hItem = ( HTREEITEM )::SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_CHILD, ( LPARAM )htiParent );
+
+	// Loop through all tree items
+	while( ( tvi.hItem != NULL ) && ( htiResult == NULL ) )
+	{
+		// Get current item text
+		if( ::SendMessage( g_hWndTreeView, TVM_GETITEM, ( WPARAM )TVGN_CARET, ( LPARAM )&tvi ) )
+		{
+			// Successfully got current item text
+
+			// See if current item text is the same as required item text
+			if( strcmpi( lpszCurrentItemText, lpszRequiredItemText ) == 0 )
+			{
+				// Current item text is the same as required item text
+
+				// Update return value
+				htiResult = tvi.hItem;
+
+			} // End of current item text is the same as required item text
+
+			// Get next item
+			tvi.hItem = ( HTREEITEM )::SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_NEXT, ( LPARAM )tvi.hItem );
+
+		} // End of successfully got current item text
+		else
+		{
+			// Unable to get current item text
+
+			// Force exit from loop
+			tvi.hItem = NULL;
+
+		} // End of unable to get current item text
+
+	}; // End of loop through all tree items
+
+	return htiResult;
+
+} // End of function TreeViewWindowFindItem
 BOOL TreeViewWindowGetRect( LPRECT lpRect )
 {
 	// Get tree view window rect

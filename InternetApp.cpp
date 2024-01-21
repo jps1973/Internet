@@ -7,21 +7,46 @@ void TagFunction( LPTSTR lpszTag )
 	// Allocate string memory
 	LPTSTR lpszTagName = new char[ lstrlen( lpszTag ) ];
 
-	// Add tag to tree view window
-	TreeViewWindowAddString( lpszTag );
-
 	// Get tag name
 	if( HtmlFileGetTagName( lpszTag, lpszTagName ) )
 	{
 		// Successfully got tag name
 
-		// Add tag name to tree view window
-		TreeViewWindowAddString( lpszTagName );
+		// Ensure that this is not an end tag
+		if( lpszTagName[ 0 ] != ASCII_FORWARD_SLASH_CHARACTER )
+		{
+			// This is not an end tag
+			HTREEITEM htiTagName;
+
+			// See if tag name already exists on tree view window
+			htiTagName = TreeViewWindowFindItem( lpszTagName, TVI_ROOT );
+
+			// See if tag name was found on tree view window
+			if( htiTagName == NULL )
+			{
+				// Tag name was not found on tree view window
+			
+				// Add tag name to tree view window
+				htiTagName = TreeViewWindowAddString( lpszTagName );
+
+			} // End of tag name was not found on tree view window
+
+			// Ensure that tag name tag is valid
+			if( htiTagName )
+			{
+				// Tag name tag is valid
+
+					// Add tag to tree view window
+					TreeViewWindowAddString( lpszTag, htiTagName );
+
+			} // End of tag name tag is valid
+
+		} // End of this is not an end tag
 
 	} // End of successfully got tag name
-	else
-		TreeViewWindowAddString( "Prob" );
-	
+
+	// Free string memory
+	delete [] lpszTagName;
 
 } // End of function TagFunction
 

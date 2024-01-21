@@ -20,6 +20,8 @@ HTREEITEM TreeViewWindowAddString( LPCTSTR lpszString, HTREEITEM htiParent = TVI
 
 BOOL TreeViewWindowCreate( HWND hWndParent, HINSTANCE hInstance );
 
+HTREEITEM TreeViewWindowFindItem( LPCTSTR lpszRequiredItemText, HTREEITEM htiParent = TVI_ROOT );
+
 BOOL TreeViewWindowGetRect( LPRECT lpRect );
 
 BOOL TreeViewWindowHandleNotifyMessage( WPARAM wParam, LPARAM lParam, void( *lpDoubleClickFunction )( LPCTSTR lpszItemText ), void( *lpSelectionChangedFunction )( LPCTSTR lpszItemText ) );
