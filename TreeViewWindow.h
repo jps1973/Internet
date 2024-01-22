@@ -16,7 +16,7 @@
 
 BOOL IsTreeViewWindow( HWND hWnd );
 
-HTREEITEM TreeViewWindowAddString( LPCTSTR lpszString, HTREEITEM htiParent = TVI_ROOT, HTREEITEM htiPrevious = TVI_LAST );
+HTREEITEM TreeViewWindowAddString( LPCTSTR lpszString, HTREEITEM htiParent = TVI_ROOT, HTREEITEM htiPrevious = TVI_SORT );
 
 BOOL TreeViewWindowCreate( HWND hWndParent, HINSTANCE hInstance );
 

@@ -16,30 +16,62 @@ void TagFunction( LPTSTR lpszTag )
 		if( lpszTagName[ 0 ] != ASCII_FORWARD_SLASH_CHARACTER )
 		{
 			// This is not an end tag
-			HTREEITEM htiTagName;
+			HTREEITEM htiParentItem;
 
-			// See if tag name already exists on tree view window
-			htiTagName = TreeViewWindowFindItem( lpszTagName, TVI_ROOT );
+			// Allocate string memory
+			LPTSTR lpszParentItemName	= new char[ STRING_LENGTH ];
+			LPTSTR lpszItemText			= new char[ STRING_LENGTH ];
 
-			// See if tag name was found on tree view window
-			if( htiTagName == NULL )
+			// See if this is an anchor tag
+			if( lstrcmpi( lpszTagName, HTML_FILE_ANCHOR_TAG_NAME ) == 0 )
 			{
-				// Tag name was not found on tree view window
+				// This is an anchor tag
+
+				// Update parent item name
+				lstrcpy( lpszParentItemName, HTML_FILE_ANCHOR_TAG_HEADER );
+
+				// Update item text
+				lstrcpy( lpszItemText, lpszTag );
+
+			} // End of this is an anchor tag
+			else
+			{
+				// This is an unknown tag
+
+				// Update parent item name
+				lstrcpy( lpszParentItemName, HTML_FILE_UNKNOWN_TAG_HEADER );
+
+				// Update item text
+				lstrcpy( lpszItemText, lpszTag );
+
+			} // End of this is an unknown tag
+
+			// See if parent item already exists on tree view window
+			htiParentItem = TreeViewWindowFindItem( lpszParentItemName, TVI_ROOT );
+
+			// See if parent item was found on tree view window
+			if( htiParentItem == NULL )
+			{
+				// Parent item was not found on tree view window
 			
-				// Add tag name to tree view window
-				htiTagName = TreeViewWindowAddString( lpszTagName );
+				// Add parent item to tree view window
+				htiParentItem = TreeViewWindowAddString( lpszParentItemName );
 
-			} // End of tag name was not found on tree view window
+			} // End of parent item was not found on tree view window
 
-			// Ensure that tag name tag is valid
-			if( htiTagName )
+			// Ensure that parent item tag is valid
+			if( htiParentItem )
 			{
-				// Tag name tag is valid
+				// parent item tag is valid
 
 					// Add tag to tree view window
-					TreeViewWindowAddString( lpszTag, htiTagName );
+					TreeViewWindowAddString( lpszItemText, htiParentItem );
 
-			} // End of tag name tag is valid
+			} // End of parent item tag is valid
+
+			// Free string memory
+			delete [] lpszParentItemName;
+			delete [] lpszItemText;
 
 		} // End of this is not an end tag
 

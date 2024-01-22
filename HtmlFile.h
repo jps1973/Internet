@@ -16,6 +16,11 @@
 #define HTML_FILE_COMMENT_PREFIX												"<!--"
 #define HTML_FILE_COMMENT_SUFFIX												"-->"
 
+#define HTML_FILE_ANCHOR_TAG_NAME												"a"
+#define HTML_FILE_ANCHOR_TAG_HEADER												"Anchor"
+
+#define HTML_FILE_UNKNOWN_TAG_HEADER											"Unknown"
+
 void HtmlFileFreeMemory();
 
 BOOL HtmlFileGetTagName( LPCTSTR lpszTag, LPTSTR lpszTagName );
