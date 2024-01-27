@@ -13,9 +13,83 @@ void HtmlFileFreeMemory()
 
 } // End of function HtmlFileFreeMemory
 
-BOOL HtmlFileGetTagName( LPCTSTR lpszTag, LPTSTR lpszTagName )
+BOOL HtmlFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszAttributeName, LPTSTR lpszAttributeValue )
 {
 	BOOL bResult = FALSE;
+
+	LPTSTR lpszFoundAttributeName;
+
+	// Find attribute name in tag
+	lpszFoundAttributeName = strstr( lpszTag, lpszAttributeName );
+
+	// Ensure that attribute name was found in tag
+	if( lpszAttributeName )
+	{
+		// Successfully found attribute name in tag
+		LPTSTR lpszInvertedComma;
+
+		// Find first inverted comma after attribute name
+		lpszInvertedComma = strchr( lpszFoundAttributeName, ASCII_INVERTED_COMMA_CHARACTER );
+
+		// Ensure that inverted comma was found
+		if( lpszInvertedComma )
+		{
+			// Successfully found inverted comma
+
+			// Copy text into attribute value
+			lstrcpy( lpszAttributeValue, ( lpszInvertedComma + sizeof( char ) ) );
+
+			// Find first inverted comma in attribute value
+			lpszInvertedComma = strchr( lpszAttributeValue, ASCII_INVERTED_COMMA_CHARACTER );
+
+			// Ensure that inverted comma was found
+			if( lpszInvertedComma )
+			{
+				// Successfully found inverted comma
+
+				// Terminate attribute value
+				lpszInvertedComma[ 0 ] = ( char )NULL;
+
+				// Update return value
+				bResult = TRUE;
+
+			} // End of successfully found inverted comma
+			else
+			{
+				// Unable to find inverted comma
+
+				// Clear attribute value
+				lpszAttributeValue[ 0 ] = ( char )NULL;
+
+			} // End of unable to find inverted comma
+
+		} // End of successfully found inverted comma
+		else
+		{
+			// Unable to find inverted comma
+
+			// Clear attribute value
+			lpszAttributeValue[ 0 ] = ( char )NULL;
+
+		} // End of unable to find inverted comma
+
+	} // End of successfully found attribute name in tag
+	else
+	{
+		// Unable to find attribute name in tag
+
+		// Clear attribute value
+		lpszAttributeValue[ 0 ] = ( char )NULL;
+
+	} // End of unable to find attribute name in tag
+
+	return bResult;
+
+} // End of function HtmlFileGetAttributeValue
+
+BOOL HtmlFileGetTagName( LPCTSTR lpszTag, LPTSTR lpszTagName )
+{
+	BOOL bResult;
 
 	int nEndOfTagName;
 

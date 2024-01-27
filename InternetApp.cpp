@@ -31,7 +31,7 @@ void TagFunction( LPTSTR lpszTag )
 				lstrcpy( lpszParentItemName, HTML_FILE_ANCHOR_TAG_HEADER );
 
 				// Update item text
-				lstrcpy( lpszItemText, lpszTag );
+				HtmlFileGetAttributeValue( lpszTag, HTML_FILE_ANCHOR_TAG_ATTRIBUTE_NAME, lpszItemText );
 
 			} // End of this is an anchor tag
 			else
