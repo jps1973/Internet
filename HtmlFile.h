@@ -20,11 +20,17 @@
 #define HTML_FILE_ANCHOR_TAG_HEADER												"Anchor"
 #define HTML_FILE_ANCHOR_TAG_ATTRIBUTE_NAME										"href"
 
+#define HTML_FILE_IMAGE_TAG_NAME												"img"
+#define HTML_FILE_IMAGE_TAG_HEADER												"Image"
+#define HTML_FILE_IMAGE_TAG_ATTRIBUTE_NAME										"src"
+
 #define HTML_FILE_UNKNOWN_TAG_HEADER											"Unknown"
+
+#define HTML_FILE_ABSOLUTE_IDENTIFIER											"://"
 
 void HtmlFileFreeMemory();
 
-BOOL HtmlFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszAttributeName, LPTSTR lpszAttributeValue );
+BOOL HtmlFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszParentUrl, LPCTSTR lpszAttributeName, LPTSTR lpszAttributeValue );
 
 BOOL HtmlFileGetTagName( LPCTSTR lpszTag, LPTSTR lpszTagName );
 

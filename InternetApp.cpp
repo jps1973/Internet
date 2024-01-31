@@ -2,6 +2,9 @@
 
 #include "InternetApp.h"
 
+// Global variables
+LPTSTR g_lpszParentUrl;
+
 void TagFunction( LPTSTR lpszTag )
 {
 	// Allocate string memory
@@ -31,9 +34,20 @@ void TagFunction( LPTSTR lpszTag )
 				lstrcpy( lpszParentItemName, HTML_FILE_ANCHOR_TAG_HEADER );
 
 				// Update item text
-				HtmlFileGetAttributeValue( lpszTag, HTML_FILE_ANCHOR_TAG_ATTRIBUTE_NAME, lpszItemText );
+				HtmlFileGetAttributeValue( lpszTag, g_lpszParentUrl, HTML_FILE_ANCHOR_TAG_ATTRIBUTE_NAME, lpszItemText );
 
 			} // End of this is an anchor tag
+			else if( lstrcmpi( lpszTagName, HTML_FILE_IMAGE_TAG_NAME ) == 0 )
+			{
+				// This is an image tag
+
+				// Update parent item name
+				lstrcpy( lpszParentItemName, HTML_FILE_IMAGE_TAG_HEADER );
+
+				// Update item text
+				HtmlFileGetAttributeValue( lpszTag, g_lpszParentUrl, HTML_FILE_IMAGE_TAG_ATTRIBUTE_NAME, lpszItemText );
+
+			} // End of this is an image tag
 			else
 			{
 				// This is an unknown tag
@@ -336,11 +350,8 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 				{
 					// A button window command
 
-					// Allocate string memory
-					LPTSTR lpszUrl = new char[ STRING_LENGTH ];
-
 					// Get url from edit window
-					if( EditWindowGetText( lpszUrl ) )
+					if( EditWindowGetText( g_lpszParentUrl ) )
 					{
 						// Successfully got url from edit window
 
@@ -348,7 +359,7 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 						LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
 
 						// Download file
-						if( InternetDownloadFile( lpszUrl, lpszLocalFilePath ) )
+						if( InternetDownloadFile( g_lpszParentUrl, lpszLocalFilePath ) )
 						{
 							// Successfully downloaded file
 
@@ -374,7 +385,7 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 							LPTSTR lpszErrorMessage = new char[ STRING_LENGTH ];
 
 							// Format error message
-							wsprintf( lpszErrorMessage, INTERNET_UNABLE_TO_DOWNLOAD_FILE_ERROR_MESSAGE_FORMAT_STRING, lpszUrl );
+							wsprintf( lpszErrorMessage, INTERNET_UNABLE_TO_DOWNLOAD_FILE_ERROR_MESSAGE_FORMAT_STRING, g_lpszParentUrl );
 
 							// Display error message
 							MessageBox( NULL, lpszErrorMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
@@ -385,9 +396,6 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 						} // End of unable to connect to internet
 
 					} // End of successfully got url from edit window
-
-					// Free string memory
-					delete [] lpszUrl;
 
 					// Break out of switch
 					break;
@@ -589,6 +597,12 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 	// Clear message structure
 	ZeroMemory( &msg, sizeof( msg ) );
 
+	// Allocate global memory
+	g_lpszParentUrl = new char[ STRING_LENGTH ];
+
+	// Clear parent url
+	g_lpszParentUrl[ 0 ] = ( char )NULL;
+
 	// Connect to internet
 	if( InternetConnect() )
 	{
@@ -724,6 +738,9 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 		MessageBox( NULL, INTERNET_UNABLE_TO_CONNECT_INTERNET_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
 
 	} // End of unable to connect to internet
+
+	// Free global memory
+	delete [] g_lpszParentUrl;
 
 	return msg.wParam;
 

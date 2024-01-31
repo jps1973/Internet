@@ -13,7 +13,7 @@ void HtmlFileFreeMemory()
 
 } // End of function HtmlFileFreeMemory
 
-BOOL HtmlFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszAttributeName, LPTSTR lpszAttributeValue )
+BOOL HtmlFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszParentUrl, LPCTSTR lpszAttributeName, LPTSTR lpszAttributeValue )
 {
 	BOOL bResult = FALSE;
 
@@ -36,19 +36,58 @@ BOOL HtmlFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszAttributeName, LPTS
 		{
 			// Successfully found inverted comma
 
-			// Copy text into attribute value
-			lstrcpy( lpszAttributeValue, ( lpszInvertedComma + sizeof( char ) ) );
+			// Allocate string memory
+			LPTSTR lpszRelativeAttributeValue = new char[ STRING_LENGTH ];
 
-			// Find first inverted comma in attribute value
-			lpszInvertedComma = strchr( lpszAttributeValue, ASCII_INVERTED_COMMA_CHARACTER );
+			// Copy text into relative attribute value
+			lstrcpy( lpszRelativeAttributeValue, ( lpszInvertedComma + sizeof( char ) ) );
+
+			// Find first inverted comma in relative attribute value
+			lpszInvertedComma = strchr( lpszRelativeAttributeValue, ASCII_INVERTED_COMMA_CHARACTER );
 
 			// Ensure that inverted comma was found
 			if( lpszInvertedComma )
 			{
 				// Successfully found inverted comma
 
-				// Terminate attribute value
+				// Terminate relative attribute value
 				lpszInvertedComma[ 0 ] = ( char )NULL;
+
+				// See if relative attribute value is absolute
+				if( strstr( lpszRelativeAttributeValue, HTML_FILE_ABSOLUTE_IDENTIFIER ) )
+				{
+					// Relative attribute value is absolute
+
+					// Use relative value as attribute value
+					lstrcpy( lpszAttributeValue, lpszRelativeAttributeValue );
+
+				} // End of relative attribute value is absolute
+				else
+				{
+					// Relative attribute value is not absolute
+
+					// Copy parent url into attribute value
+					lstrcpy( lpszAttributeValue, lpszParentUrl );
+
+					// See if relative url begins with a forward slash character
+					if( lpszRelativeAttributeValue[ 0 ] == ASCII_FORWARD_SLASH_CHARACTER )
+					{
+						// Relative url begins with a forward slash character
+
+						// Append relative value (after forward slash character) onto attribute value
+						lstrcat( lpszAttributeValue, ( lpszRelativeAttributeValue + sizeof( char ) ) );
+
+					} // End of relative url begins with a forward slash character
+					else
+					{
+						// Relative url does not begin with a forward slash character
+
+						// Append relative value onto attribute value
+						lstrcat( lpszAttributeValue, lpszRelativeAttributeValue );
+
+					} // End of relative url does not begin with a forward slash character
+
+				} // End of relative attribute value is not absolute
 
 				// Update return value
 				bResult = TRUE;
@@ -62,6 +101,9 @@ BOOL HtmlFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszAttributeName, LPTS
 				lpszAttributeValue[ 0 ] = ( char )NULL;
 
 			} // End of unable to find inverted comma
+
+			// Free string memory
+			delete [] lpszRelativeAttributeValue;
 
 		} // End of successfully found inverted comma
 		else
