@@ -233,6 +233,20 @@ BOOL TreeViewWindowProcessSelected( void( *lpProcessFunction )( LPCTSTR lpszItem
 		if( SendMessage( g_hWndTreeView, TVM_GETITEM, 0, ( LPARAM )&tvItem ) )
 		{
 			// Successfully got item text
+			LPTSTR lpszQuestionMark;
+
+			// Find first question mark in item text
+			lpszQuestionMark = strchr( lpszItemText, ASCII_QUESTION_MARK_CHARACTER );
+
+			// See if first question mark was found in item text
+			if( lpszQuestionMark )
+			{
+				// Successfully found first question mark in item text
+
+				// Terminate item text at first question mark
+				lpszQuestionMark[ 0 ] = ( char )NULL;
+
+			} // End of successfully found first question mark in item text
 
 			// Process item
 			( *lpProcessFunction )( lpszItemText );

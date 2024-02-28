@@ -12,7 +12,7 @@
 
 #define EDIT_WINDOW_EXTENDED_STYLE												0
 #define EDIT_WINDOW_STYLE														( WS_CHILD | WS_VISIBLE | WS_BORDER )
-#define EDIT_WINDOW_TEXT														"https://www.google.com"
+#define EDIT_WINDOW_TEXT														"https://news.sky.com/uk"
 
 BOOL IsEditWindow( HWND hWnd );
 

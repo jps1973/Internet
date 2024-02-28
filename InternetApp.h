@@ -40,5 +40,9 @@
 																				"\r\n"								\
 																				"December 2023"
 
+#define DOWNLOADING_STATUS_MESSAGE_FORMAT_STRING								"Downloading %s..."
+#define DOWNLOADED_STATUS_MESSAGE_FORMAT_STRING									"Downloaded %s to %s"
+#define UNABLE_TO_DOWNLOAD_STATUS_MESSAGE_FORMAT_STRING							"Unable to download %s"
+
 #define UNABLE_TO_REGISTER_MAIN_WINDOW_CLASS_ERROR_MESSAGE						"Unable to Register Main Window Class"
 #define UNABLE_TO_CREATE_MAIN_WINDOW_ERROR_MESSAGE								"Unable to Create Main Window"

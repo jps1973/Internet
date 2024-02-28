@@ -120,8 +120,55 @@ void EditWindowUpdateFunction( int nTextLength )
 
 void DoubleClickFunction( LPCTSTR lpszItemText )
 {
-	// Display item text
-	MessageBox( NULL, lpszItemText, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+	// See if item is an absolute url
+	if( strstr( lpszItemText, HTML_FILE_ABSOLUTE_IDENTIFIER ) )
+	{
+		// Item is an absolute url
+
+		// Allocate string memory
+		LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
+		LPTSTR lpszStatusMessage = new char[ STRING_LENGTH ];
+
+		// Format status message
+		wsprintf( lpszStatusMessage, DOWNLOADING_STATUS_MESSAGE_FORMAT_STRING, lpszItemText );
+
+		// Show status message on status bar window
+		StatusBarWindowSetText( lpszStatusMessage );
+
+		// Download item
+		if( InternetDownloadFile( lpszItemText, lpszLocalFilePath ) )
+		{
+			// Successfully downloaded item
+
+			// Format status message
+			wsprintf( lpszStatusMessage, DOWNLOADED_STATUS_MESSAGE_FORMAT_STRING, lpszItemText, lpszLocalFilePath );
+
+		} // End of successfully downloaded item
+		else
+		{
+			// Unable to download item
+
+			// Format status message
+			wsprintf( lpszStatusMessage, UNABLE_TO_DOWNLOAD_STATUS_MESSAGE_FORMAT_STRING, lpszItemText );
+
+		} // End of unable to download item
+
+		// Show status message on status bar window
+		StatusBarWindowSetText( lpszStatusMessage );
+
+		// Free string memory
+		delete [] lpszLocalFilePath;
+		delete [] lpszStatusMessage;
+
+	} // End of item is an absolute url
+	else
+	{
+		// Item is an not absolute url
+
+		// Display item text
+		MessageBox( NULL, lpszItemText, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+
+	} // End of item is not an absolute url
 
 } // End of function DoubleClickFunction
 
@@ -355,7 +402,7 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 					{
 						// Successfully got url from edit window
 
-						// Allocate strinf memory
+						// Allocate string memory
 						LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
 
 						// Download file
