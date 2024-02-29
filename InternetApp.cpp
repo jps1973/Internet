@@ -118,7 +118,7 @@ void EditWindowUpdateFunction( int nTextLength )
 
 } // End of function EditWindowUpdateFunction
 
-void DoubleClickFunction( LPCTSTR lpszItemText )
+void TreeViewWindowDoubleClickFunction( LPCTSTR lpszItemText )
 {
 	// See if item is an absolute url
 	if( strstr( lpszItemText, HTML_FILE_ABSOLUTE_IDENTIFIER ) )
@@ -170,14 +170,14 @@ void DoubleClickFunction( LPCTSTR lpszItemText )
 
 	} // End of item is not an absolute url
 
-} // End of function DoubleClickFunction
+} // End of function TreeViewWindowDoubleClickFunction
 
-void SelectionChangedFunction( LPCTSTR lpszItemText )
+void TreeViewWindowSelectionChangedFunction( LPCTSTR lpszItemText )
 {
 	// Show item text on status bar window
 	StatusBarWindowSetText( lpszItemText );
 
-} // End of function SelectionChangedFunction
+} // End of function TreeViewWindowSelectionChangedFunction
 
 int ShowAboutMessage( HWND hWndParent )
 {
@@ -559,7 +559,7 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			{
 				// Notify message is from tree view window
 
-				if( !( TreeViewWindowHandleNotifyMessage( wParam, lParam, &DoubleClickFunction, &SelectionChangedFunction ) ) )
+				if( !( TreeViewWindowHandleNotifyMessage( wParam, lParam, &TreeViewWindowDoubleClickFunction, &TreeViewWindowSelectionChangedFunction ) ) )
 				{
 					// Notify message was not handled from tree view window
 

@@ -49,6 +49,7 @@ BOOL HtmlFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszParentUrl, LPCTSTR 
 			if( lpszInvertedComma )
 			{
 				// Successfully found inverted comma
+				LPTSTR lpszQuestionMark;
 
 				// Terminate relative attribute value
 				lpszInvertedComma[ 0 ] = ( char )NULL;
@@ -88,6 +89,19 @@ BOOL HtmlFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszParentUrl, LPCTSTR 
 					} // End of relative url does not begin with a forward slash character
 
 				} // End of relative attribute value is not absolute
+
+				// Find first question mark in attribute value
+				lpszQuestionMark = strchr( lpszAttributeValue, ASCII_QUESTION_MARK_CHARACTER );
+
+				// See if first question mark was found in attribute value
+				if( lpszQuestionMark )
+				{
+					// Successfully found first question mark in attribute value
+
+					// Terminate attribute value at first question mark
+					lpszQuestionMark[ 0 ] = ( char )NULL;
+
+				} // End of successfully found first question mark in attribute value
 
 				// Update return value
 				bResult = TRUE;
