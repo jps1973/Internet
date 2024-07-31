@@ -217,8 +217,32 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 					{
 						// Successfully got url from edit window
 
-						// Display url
-						MessageBox( hWndMain, lpszUrl, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+						// Download file from url
+						if( InternetDownloadFile( lpszUrl ) )
+						{
+							// Successfully downloaded file from url
+
+							// Display url
+							MessageBox( hWndMain, lpszUrl, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+
+						} // End of successfully downloaded file from url
+						else
+						{
+							// Unable to download file from url
+
+							// Allocate string memory
+							LPTSTR lpszErrorMessage = new char[ STRING_LENGTH ];
+
+							// Format string message
+							wsprintf( lpszErrorMessage, INTERNET_UNABLE_DOWNLOAD_FILE_FORMAT_STRING, lpszUrl );
+
+							// Display error message
+							MessageBox( NULL, lpszErrorMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
+
+							// Free string memory
+							delete [] lpszErrorMessage;
+
+						} // End of unable to download file from url
 
 					} // End of successfully got url from edit window
 

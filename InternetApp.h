@@ -12,6 +12,8 @@
 #include "ButtonWindow.h"
 #include "EditWindow.h"
 
+#include "Internet.h"
+
 #define MAIN_WINDOW_CLASS_NAME													"Main Internet Window Class"
 
 #define MAIN_WINDOW_CLASS_STYLE													0
