@@ -9,6 +9,9 @@
 #include "Ascii.h"
 #include "Common.h"
 
+#include "ButtonWindow.h"
+#include "EditWindow.h"
+
 #define MAIN_WINDOW_CLASS_NAME													"Main Internet Window Class"
 
 #define MAIN_WINDOW_CLASS_STYLE													0
