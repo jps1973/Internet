@@ -3,8 +3,8 @@
 #include "InternetFile.h"
 
 // Global variables
-LPTSTR g_lpszFileText;
-DWORD g_dwFileSize;
+static LPTSTR g_lpszFileText;
+static DWORD g_dwFileSize;
 
 BOOL InternetFileLoad( LPCTSTR lpszFileName )
 {

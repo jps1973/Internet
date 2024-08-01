@@ -3,7 +3,7 @@
 #include "EditWindow.h"
 
 // Global variables
-HWND g_hWndEdit;
+static HWND g_hWndEdit;
 
 BOOL IsEditWindow( HWND hWnd )
 {

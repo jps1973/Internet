@@ -85,18 +85,28 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 					// Set button edit window font
 					ButtonWindowSetFont( hFont );
 
-					// Create status bar window
-					if( StatusBarWindowCreate( hWndMain, hInstance ) )
+					// Create tree view window
+					if( TreeViewWindowCreate( hWndMain, hInstance ) )
 					{
-						// Successfully created status bar window
+						// Successfully created tree view window
 
-						// Set status bar window font
-						StatusBarWindowSetFont( hFont );
+						// Set tree view window font
+						TreeViewWindowSetFont( hFont );
 
-						// Select edit window text
-						EditWindowSelect();
+						// Create status bar window
+						if( StatusBarWindowCreate( hWndMain, hInstance ) )
+						{
+							// Successfully created status bar window
 
-					} // End of successfully created status bar window
+							// Set status bar window font
+							StatusBarWindowSetFont( hFont );
+
+							// Select edit window text
+							EditWindowSelect();
+
+						} // End of successfully created status bar window
+
+					} // End of successfully created tree view window
 
 				} // End of successfully created button window
 
@@ -114,6 +124,8 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			int nEditWindowWidth;
 			int nButtonWindowLeft;
 			int nStatusBarWindowHeight;
+			int nTreeViewWindowTop;
+			int nTreeViewWindowHeight;
 			RECT rcStatusBar;
 
 			// Store client width and height
@@ -128,14 +140,17 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 
 			// Calculate control window sizes
 			nStatusBarWindowHeight	= ( rcStatusBar.bottom - rcStatusBar.top );
-			nEditWindowWidth		= ( nClientWidth - ( BUTTON_WINDOW_WIDTH + WINDOW_BORDER_WIDTH ) );
+			nEditWindowWidth		= ( nClientWidth - ( BUTTON_WINDOW_WIDTH - WINDOW_BORDER_WIDTH ) );
+			nTreeViewWindowHeight	= ( nClientHeight - ( BUTTON_WINDOW_HEIGHT - WINDOW_BORDER_HEIGHT + nStatusBarWindowHeight ) );
 
 			// Calculate control window positions
 			nButtonWindowLeft	= ( nEditWindowWidth - WINDOW_BORDER_WIDTH );
+			nTreeViewWindowTop	= ( BUTTON_WINDOW_HEIGHT - WINDOW_BORDER_HEIGHT );
 
 			// Move control windows
 			EditWindowMove( 0, 0, nEditWindowWidth, BUTTON_WINDOW_HEIGHT );
 			ButtonWindowMove( nButtonWindowLeft, 0, BUTTON_WINDOW_WIDTH, BUTTON_WINDOW_HEIGHT );
+			TreeViewWindowMove( 0, nTreeViewWindowTop, nClientWidth, nTreeViewWindowHeight );
 
 			// Break out of switch
 			break;

@@ -12,6 +12,7 @@
 #include "ButtonWindow.h"
 #include "EditWindow.h"
 #include "StatusBarWindow.h"
+#include "TreeViewWindow.h"
 
 #include "Internet.h"
 #include "InternetFile.h"

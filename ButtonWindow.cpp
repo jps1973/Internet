@@ -3,7 +3,7 @@
 #include "ButtonWindow.h"
 
 // Global variables
-HWND g_hWndButton;
+static HWND g_hWndButton;
 
 BOOL IsButtonWindow( HWND hWnd )
 {
