@@ -11,8 +11,10 @@
 
 #include "ButtonWindow.h"
 #include "EditWindow.h"
+#include "StatusBarWindow.h"
 
 #include "Internet.h"
+#include "InternetFile.h"
 
 #define MAIN_WINDOW_CLASS_NAME													"Main Internet Window Class"
 
@@ -38,7 +40,7 @@
 																				"\r\n"								\
 																				"Written by Jim Smith\r\n"			\
 																				"\r\n"								\
-																				"July 2024"
+																				"August 2024"
 
 #define UNABLE_TO_CREATE_MAIN_WINDOW_ERROR_MESSAGE								"Unable to create main window"
 #define UNABLE_TO_REGISTER_MAIN_WINDOW_CLASS_ERROR_MESSAGE						"Unable to register main window class"

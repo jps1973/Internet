@@ -82,11 +82,21 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 				{
 					// Successfully created button window
 
-					// button edit window font
+					// Set button edit window font
 					ButtonWindowSetFont( hFont );
 
-					// Select edit window text
-					EditWindowSelect();
+					// Create status bar window
+					if( StatusBarWindowCreate( hWndMain, hInstance ) )
+					{
+						// Successfully created status bar window
+
+						// Set status bar window font
+						StatusBarWindowSetFont( hFont );
+
+						// Select edit window text
+						EditWindowSelect();
+
+					} // End of successfully created status bar window
 
 				} // End of successfully created button window
 
@@ -103,13 +113,22 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			int nClientHeight;
 			int nEditWindowWidth;
 			int nButtonWindowLeft;
+			int nStatusBarWindowHeight;
+			RECT rcStatusBar;
 
 			// Store client width and height
 			nClientWidth	= ( int )LOWORD( lParam );
 			nClientHeight	= ( int )HIWORD( lParam );
 
+			// Size status bar window
+			StatusBarWindowSize();
+
+			// Get status bar window size
+			StatusBarWindowGetRect( &rcStatusBar );
+
 			// Calculate control window sizes
-			nEditWindowWidth	= ( nClientWidth - ( BUTTON_WINDOW_WIDTH + WINDOW_BORDER_WIDTH ) );
+			nStatusBarWindowHeight	= ( rcStatusBar.bottom - rcStatusBar.top );
+			nEditWindowWidth		= ( nClientWidth - ( BUTTON_WINDOW_WIDTH + WINDOW_BORDER_WIDTH ) );
 
 			// Calculate control window positions
 			nButtonWindowLeft	= ( nEditWindowWidth - WINDOW_BORDER_WIDTH );
@@ -217,13 +236,36 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 					{
 						// Successfully got url from edit window
 
+						// Allocate string memory
+						LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
+
 						// Download file from url
-						if( InternetDownloadFile( lpszUrl ) )
+						if( InternetDownloadFile( lpszUrl, lpszLocalFilePath ) )
 						{
 							// Successfully downloaded file from url
 
-							// Display url
-							MessageBox( hWndMain, lpszUrl, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+							// Load internet file
+							if( InternetFileLoad( lpszLocalFilePath ) )
+							{
+								// Successfully loaded internet file
+							} // End of successfully loaded internet file
+							else
+							{
+								// Unable to load internet file
+
+								// Allocate string memory
+								LPTSTR lpszErrorMessage = new char[ STRING_LENGTH ];
+
+								// Format string message
+								wsprintf( lpszErrorMessage, INTERNET_FILE_UNABLE_TO_LOAD_ERROR_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
+
+								// Display error message
+								MessageBox( NULL, lpszErrorMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
+
+								// Free string memory
+								delete [] lpszErrorMessage;
+
+							} // End of unable to load internet file
 
 						} // End of successfully downloaded file from url
 						else
@@ -243,6 +285,9 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 							delete [] lpszErrorMessage;
 
 						} // End of unable to download file from url
+
+						// Free string memory
+						delete [] lpszLocalFilePath;
 
 					} // End of successfully got url from edit window
 

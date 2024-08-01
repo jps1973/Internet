@@ -21,4 +21,4 @@
 
 #define INTERNET_UNABLE_DOWNLOAD_FILE_FORMAT_STRING								"Unable to Download %s"
 
-BOOL InternetDownloadFile( LPCTSTR lpszUrl );
+BOOL InternetDownloadFile( LPCTSTR lpszUrl, LPTSTR lpszLocalFilePath );

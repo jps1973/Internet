@@ -2,7 +2,7 @@
 
 #include "Internet.h"
 
-BOOL InternetDownloadFile( LPCTSTR lpszUrl )
+BOOL InternetDownloadFile( LPCTSTR lpszUrl, LPTSTR lpszLocalFilePath )
 {
 	BOOL bResult = FALSE;
 
@@ -15,9 +15,6 @@ BOOL InternetDownloadFile( LPCTSTR lpszUrl )
 	if( hInternet )
 	{
 		// Successfully opened internet
-
-		// Allocate string memory
-		LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
 
 		// Get current folder into local file path
 		if( GetCurrentDirectory( STRING_LENGTH, lpszLocalFilePath ) )
@@ -129,9 +126,6 @@ BOOL InternetDownloadFile( LPCTSTR lpszUrl )
 			delete [] lpszShortUrl;
 
 		} // End of successfully got current folder into local file path
-
-		// Free string memory
-		delete [] lpszLocalFilePath;
 
 	} // End of successfully opened internet
 	else
