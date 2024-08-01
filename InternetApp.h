@@ -43,5 +43,9 @@
 																				"\r\n"								\
 																				"August 2024"
 
+#define DOWNLOADING_INTERNET_FILE_STATUS_MESSAGE_FORMAT_STRING					"Downloading internet file %s ..."
+#define LOADING_LOCAL_FILE_STATUS_MESSAGE_FORMAT_STRING							"Loading local file %s ..."
+#define PROCESSING_TAGS_IN_LOCAL_FILE_STATUS_MESSAGE_FORMAT_STRING				"Processing tags in local file %s ..."
+
 #define UNABLE_TO_CREATE_MAIN_WINDOW_ERROR_MESSAGE								"Unable to create main window"
 #define UNABLE_TO_REGISTER_MAIN_WINDOW_CLASS_ERROR_MESSAGE						"Unable to register main window class"

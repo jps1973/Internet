@@ -2,10 +2,28 @@
 
 #include "InternetApp.h"
 
+void TreeViewWindowSelectionChangedFunction( LPCTSTR lpszItemText )
+{
+	// Show item text on status bar window
+	StatusBarWindowSetText( lpszItemText );
+	
+} // End of function TreeViewWindowSelectionChangedFunction
+
 BOOL DisplayTagFunction( LPCTSTR lpszTag )
 {
+	BOOL bResult = FALSE;
+
 	// Add tag to tree view window
-	TreeViewWindowInsertItem( lpszTag );
+	if( TreeViewWindowInsertItem( lpszTag ) )
+	{ 
+		// Successfully added tag to tree view window
+
+		// Update return value
+		bResult = TRUE;
+
+	} // End of successfully added tag to tree view window
+
+	return bResult;
 	
 } // End of function DisplayTagFunction
 
@@ -260,11 +278,24 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 
 						// Allocate string memory
 						LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
+						LPTSTR lpszStatusMessage = new char[ STRING_LENGTH ];
+
+						// Format status message
+						wsprintf( lpszStatusMessage, DOWNLOADING_INTERNET_FILE_STATUS_MESSAGE_FORMAT_STRING, lpszUrl );
+
+						// Show status message on status bar window
+						StatusBarWindowSetText( lpszStatusMessage );
 
 						// Download file from url
 						if( InternetDownloadFile( lpszUrl, lpszLocalFilePath ) )
 						{
 							// Successfully downloaded file from url
+
+							// Format status message
+							wsprintf( lpszStatusMessage, LOADING_LOCAL_FILE_STATUS_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
+
+							// Show status message on status bar window
+							StatusBarWindowSetText( lpszStatusMessage );
 
 							// Load internet file
 							if( InternetFileLoad( lpszLocalFilePath ) )
@@ -272,8 +303,11 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 								// Successfully loaded internet file
 								int nTagCount;
 
-								// Allocate string memory
-								LPTSTR lpszStatusMessage = new char[ STRING_LENGTH ];
+								// Format status message
+								wsprintf( lpszStatusMessage, PROCESSING_TAGS_IN_LOCAL_FILE_STATUS_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
+
+								// Show status message on status bar window
+								StatusBarWindowSetText( lpszStatusMessage );
 
 								// Process tags in internet file
 								nTagCount = InternetFileProcessTags( &DisplayTagFunction );
@@ -284,25 +318,19 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 								// Show status message on status bar window
 								StatusBarWindowSetText( lpszStatusMessage );
 
-								// Free string memory
-								delete [] lpszStatusMessage;
-
 							} // End of successfully loaded internet file
 							else
 							{
 								// Unable to load internet file
 
-								// Allocate string memory
-								LPTSTR lpszErrorMessage = new char[ STRING_LENGTH ];
+								// Format status message
+								wsprintf( lpszStatusMessage, INTERNET_FILE_UNABLE_TO_LOAD_ERROR_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
 
-								// Format string message
-								wsprintf( lpszErrorMessage, INTERNET_FILE_UNABLE_TO_LOAD_ERROR_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
+								// Display status message
+								MessageBox( NULL, lpszStatusMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
 
-								// Display error message
-								MessageBox( NULL, lpszErrorMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
-
-								// Free string memory
-								delete [] lpszErrorMessage;
+								// Show status message on status bar window
+								StatusBarWindowSetText( lpszStatusMessage );
 
 							} // End of unable to load internet file
 
@@ -311,22 +339,20 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 						{
 							// Unable to download file from url
 
-							// Allocate string memory
-							LPTSTR lpszErrorMessage = new char[ STRING_LENGTH ];
+							// Format status message
+							wsprintf( lpszStatusMessage, INTERNET_UNABLE_DOWNLOAD_FILE_FORMAT_STRING, lpszUrl );
 
-							// Format string message
-							wsprintf( lpszErrorMessage, INTERNET_UNABLE_DOWNLOAD_FILE_FORMAT_STRING, lpszUrl );
+							// Display status message
+							MessageBox( NULL, lpszStatusMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
 
-							// Display error message
-							MessageBox( NULL, lpszErrorMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
-
-							// Free string memory
-							delete [] lpszErrorMessage;
+							// Show status message on status bar window
+							StatusBarWindowSetText( lpszStatusMessage );
 
 						} // End of unable to download file from url
 
 						// Free string memory
 						delete [] lpszLocalFilePath;
+						delete [] lpszStatusMessage;
 
 					} // End of successfully got url from edit window
 
@@ -437,10 +463,30 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			// Get notify message handler
 			lpNmHdr = ( LPNMHDR )lParam;
 
-			// Source window is lpNmHdr->hwndFrom
+			// See if notify message is from tree view window
+			if( IsTreeViewWindow( lpNmHdr->hwndFrom ) )
+			{
+				// Notify message is from tree view window
 
-			// Call default procedure
-			lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
+				// Handle notify message from tree view window
+				if( !( TreeViewWindowHandleNotifyMessage( wParam, lParam, &TreeViewWindowSelectionChangedFunction ) ) )
+				{
+					// Notify message was not handled from tree view window
+
+					// Call default procedure
+					lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
+
+				} // End of notify message was not handled from tree view window
+
+			} // End of notify message is from tree view window
+			else
+			{
+				// Notify message is not from tree view window
+
+				// Call default procedure
+				lr = DefWindowProc( hWndMain, uMessage, wParam, lParam );
+
+			} // End of notify message is not from tree view window
 
 			// Break out of switch
 			break;
