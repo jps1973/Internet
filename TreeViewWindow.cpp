@@ -63,6 +63,28 @@ BOOL TreeViewWindowHandleCommandMessage( WPARAM wParam, LPARAM, void( *lpDoubleC
 
 } // End of function TreeViewWindowHandleCommandMessage
 
+HTREEITEM TreeViewWindowInsertItem( LPCTSTR lpszItemText, HTREEITEM htiParent, HTREEITEM htiInsertAfter )
+{
+	HTREEITEM htiResult;
+
+	TVINSERTSTRUCT treeViewInsert;
+
+	// Clear tree view insert structure
+	ZeroMemory( &treeViewInsert, sizeof( treeViewInsert ) );
+
+	// Initialise tree view insert structure
+	treeViewInsert.hParent		= htiParent;
+	treeViewInsert.hInsertAfter	= htiInsertAfter;
+	treeViewInsert.item.mask	= TVIF_TEXT;
+	treeViewInsert.item.pszText	= ( LPTSTR )lpszItemText;
+
+	// Insert item
+	htiResult = ( HTREEITEM )SendMessage( g_hWndTreeView, TVM_INSERTITEM, ( WPARAM )0, ( LPARAM )&treeViewInsert );
+
+	return htiResult;
+
+} // End of function TreeViewWindowInsertItem
+
 BOOL TreeViewWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint )
 {
 	// Move tree view window

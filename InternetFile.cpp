@@ -54,3 +54,148 @@ BOOL InternetFileLoad( LPCTSTR lpszFileName )
 	return bResult;
 
 } // End of function InternetFileLoad
+
+int InternetFileProcessTags( BOOL( *lpTagFunction )( LPCTSTR lpszTag ) )
+{
+	int nResult = 0;
+
+	LPTSTR lpszStartOfTag;
+	LPTSTR lpszEndOfTag;
+	DWORD dwMaximumTagLength = STRING_LENGTH;
+	DWORD dwTagLength;
+
+	// Allocate string memory
+	LPTSTR lpszTag = new char[ dwMaximumTagLength + sizeof( char ) ];
+
+	// Find start of first tag
+	lpszStartOfTag = strchr( g_lpszFileText, INTERNET_FILE_START_OF_TAG_CHARACTER );
+
+	// Loop through all tags
+	while( lpszStartOfTag )
+	{
+		// See if tag is a comment
+		if( memcmp( lpszStartOfTag, INTERNET_FILE_COMMENT_PREFIX, lstrlen( INTERNET_FILE_COMMENT_PREFIX ) ) == 0 )
+		{
+			// Tag is a comment
+
+			// Find end of tag
+			lpszEndOfTag = strstr( lpszStartOfTag, INTERNET_FILE_COMMENT_SUFFIX );
+
+			// Ensure that end of tag was found
+			if( lpszEndOfTag )
+			{
+				// Successfully found end of tag
+
+				// Calculate tag length
+				dwTagLength = ( ( lpszEndOfTag - lpszStartOfTag ) + lstrlen( INTERNET_FILE_COMMENT_SUFFIX ) );
+
+				// Ensure that tag is long enough
+				if( dwTagLength > dwMaximumTagLength )
+				{
+					// Tag is not long enough
+
+					// Free string memory
+					delete [] lpszTag;
+
+					// Update maximum tag length
+					dwMaximumTagLength = dwTagLength;
+
+					// Re-allocate string memory
+					lpszTag = new char[ dwMaximumTagLength + sizeof( char ) ];
+
+				} // End of tag is not long enough
+
+				// Store tag
+				lstrcpyn( lpszTag, lpszStartOfTag, ( dwTagLength + sizeof( char ) ) );
+
+				// Process tag
+				if( ( *lpTagFunction )( lpszTag ) )
+				{
+					// Successfully processed tag
+
+					// Update return value
+					nResult ++;
+
+				} // End of successfully processed tag
+
+				// Find start of next tag
+				lpszStartOfTag = strchr( lpszEndOfTag, INTERNET_FILE_START_OF_TAG_CHARACTER );
+
+			} // End of successfully found end of tag
+			else
+			{
+				// Unable to find end of tag
+
+				// Force exit from loop
+				lpszStartOfTag = NULL;
+
+			} // End of unable to find end of tag
+
+		} // End of tag is a comment
+		else
+		{
+			// Tag is not a comment
+
+			// Find end of tag
+			lpszEndOfTag = strchr( lpszStartOfTag, INTERNET_FILE_END_OF_TAG_CHARACTER );
+
+			// Ensure that end of tag was found
+			if( lpszEndOfTag )
+			{
+				// Successfully found end of tag
+
+				// Calculate tag length
+				dwTagLength = ( ( lpszEndOfTag - lpszStartOfTag ) + sizeof( char ) );
+
+				// Ensure that tag is long enough
+				if( dwTagLength > dwMaximumTagLength )
+				{
+					// Tag is not long enough
+
+					// Free string memory
+					delete [] lpszTag;
+
+					// Update maximum tag length
+					dwMaximumTagLength = dwTagLength;
+
+					// Re-allocate string memory
+					lpszTag = new char[ dwMaximumTagLength + sizeof( char ) ];
+
+				} // End of tag is not long enough
+
+				// Store tag
+				lstrcpyn( lpszTag, lpszStartOfTag, ( dwTagLength + sizeof( char ) ) );
+
+				// Process tag
+				if( ( *lpTagFunction )( lpszTag ) )
+				{
+					// Successfully processed tag
+
+					// Update return value
+					nResult ++;
+
+				} // End of successfully processed tag
+
+				// Find start of next tag
+				lpszStartOfTag = strchr( lpszEndOfTag, INTERNET_FILE_START_OF_TAG_CHARACTER );
+
+			} // End of successfully found end of tag
+			else
+			{
+				// Unable to find end of tag
+
+				// Force exit from loop
+				lpszStartOfTag = NULL;
+
+			} // End of unable to find end of tag
+
+		} // End of tag is not a comment
+
+	}; // End of loop through all tags
+
+	// Free string memory
+	delete [] lpszTag;
+
+	return nResult;
+
+} // End of function InternetFileProcessTags

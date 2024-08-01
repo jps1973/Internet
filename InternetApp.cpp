@@ -2,6 +2,13 @@
 
 #include "InternetApp.h"
 
+BOOL DisplayTagFunction( LPCTSTR lpszTag )
+{
+	// Add tag to tree view window
+	TreeViewWindowInsertItem( lpszTag );
+	
+} // End of function DisplayTagFunction
+
 void EditWindowUpdateFunction( int nTextLength )
 {
 	// See if edit window contains text
@@ -263,6 +270,23 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 							if( InternetFileLoad( lpszLocalFilePath ) )
 							{
 								// Successfully loaded internet file
+								int nTagCount;
+
+								// Allocate string memory
+								LPTSTR lpszStatusMessage = new char[ STRING_LENGTH ];
+
+								// Process tags in internet file
+								nTagCount = InternetFileProcessTags( &DisplayTagFunction );
+
+								// Format status message
+								wsprintf( lpszStatusMessage, INTERNET_FILE_PROCESS_TAGS_FORMAT_STRING, lpszUrl, nTagCount );
+
+								// Show status message on status bar window
+								StatusBarWindowSetText( lpszStatusMessage );
+
+								// Free string memory
+								delete [] lpszStatusMessage;
+
 							} // End of successfully loaded internet file
 							else
 							{
