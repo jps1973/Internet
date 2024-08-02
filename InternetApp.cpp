@@ -13,15 +13,32 @@ BOOL DisplayTagFunction( LPCTSTR lpszTag )
 {
 	BOOL bResult = FALSE;
 
-	// Add tag to tree view window
-	if( TreeViewWindowInsertItem( lpszTag ) )
-	{ 
-		// Successfully added tag to tree view window
+	// Allocate string memory
+	LPTSTR lpszTagName = new char[ STRING_LENGTH ];
 
-		// Update return value
-		bResult = TRUE;
+	// Get tag name
+	if( InternetFileGetTagName( lpszTag, lpszTagName ) )
+	{
+		// Successfully got tag name
+		HTREEITEM htiTagName;
 
-	} // End of successfully added tag to tree view window
+		// Insert tag name
+		htiTagName = TreeViewWindowInsertItem( lpszTagName );
+
+		// Add tag to tree view window
+		if( TreeViewWindowInsertItem( lpszTag, htiTagName ) )
+		{ 
+			// Successfully added tag to tree view window
+
+			// Update return value
+			bResult = TRUE;
+
+		} // End of successfully added tag to tree view window
+
+	} // End of successfully got tag name
+
+	// Free string memory
+	delete [] lpszTagName;
 
 	return bResult;
 	

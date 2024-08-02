@@ -142,8 +142,8 @@ BOOL InternetFileGetTagName( LPCTSTR lpszTag, LPTSTR lpszTagName )
 
 	int nEndOfTagName;
 
-	// copy tag name
-	lstrcpy( lpszTagName, ( lpszTag + sizeof( char ) ) );
+	// Copy tag name
+	lstrcpyn( lpszTagName, ( lpszTag + sizeof( char ) ), INTERNET_FILE_MAXIMUM_TAG_NAME_LENGTH );
 
 	// Find end of tag name
 	nEndOfTagName = strcspn( lpszTagName, INTERNET_FILE_END_OF_TAG_NAME_CHARACTERS );

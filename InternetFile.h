@@ -16,6 +16,8 @@
 
 #define INTERNET_FILE_END_OF_TAG_NAME_CHARACTERS								" >"
 
+#define INTERNET_FILE_MAXIMUM_TAG_NAME_LENGTH									( STRING_LENGTH - sizeof( char ) )
+
 #define INTERNET_FILE_ANCHOR_TAG_NAME											"a"
 #define INTERNET_FILE_ANCHOR_TAG_HEADER											"Anchor"
 #define INTERNET_FILE_ANCHOR_TAG_ATTRIBUTE_NAME									"href"
