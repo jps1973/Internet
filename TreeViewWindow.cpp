@@ -163,6 +163,85 @@ HTREEITEM TreeViewWindowInsertItem( LPCTSTR lpszItemText, HTREEITEM htiParent, H
 
 } // End of function TreeViewWindowInsertItem
 
+HTREEITEM TreeViewWindowInsertUniqueItem( LPCTSTR lpszItemText, HTREEITEM htiParent, HTREEITEM htiInsertAfter )
+{
+	HTREEITEM htiResult = NULL;
+
+	TVITEM tvItem;
+
+	// Allocate string memory
+	LPTSTR lpszCurrentItemText = new char[ STRING_LENGTH ];
+
+	// Clear tree view item structure
+	ZeroMemory( &tvItem, sizeof( tvItem ) );
+
+	// Initialise tree view item structure
+	tvItem.mask			= TVIF_TEXT;
+	tvItem.pszText		= lpszCurrentItemText;
+	tvItem.cchTextMax	= STRING_LENGTH;
+
+	// Get first tree item
+	tvItem.hItem = ( HTREEITEM )SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_CHILD, ( LPARAM )htiParent );
+
+	// Loop through all tree items
+	while( tvItem.hItem )
+	{
+
+		// Get current item text
+		if( SendMessage( g_hWndTreeView, TVM_GETITEM, ( WPARAM )0, ( LPARAM )&tvItem ) )
+		{
+			// Successfully got current item text
+
+			// See if current item text matches item
+			if( lstrcmpi( lpszCurrentItemText, lpszItemText ) == 0 )
+			{
+				// Current item text matches item
+
+				// Update return value
+				htiResult = tvItem.hItem;
+
+				// Force exit from loop
+				tvItem.hItem = NULL;
+
+			} // End of current item text matches item
+			else
+			{
+				// Current item text does not match item
+
+				// Get nect tree item
+				tvItem.hItem = ( HTREEITEM )SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_NEXT, ( LPARAM )tvItem.hItem );
+
+			} // End of current item text does not match item
+
+		} // End of successfully got current item text
+		else
+		{
+			// Unable to get current item text
+
+			// Force exit from loop
+			tvItem.hItem = NULL;
+
+		} // End of unable to get current item text
+
+	}; // End of loop through all tree items
+
+	// Ensure that tree item is valid
+	if( htiResult == NULL )
+	{
+		// Tree item is not valid
+
+		// Insert tree item
+		htiResult = TreeViewWindowInsertItem( lpszItemText, htiParent, htiInsertAfter );
+
+	} // End of tree item is not valid
+
+	// Free string memory
+	delete [] lpszCurrentItemText;
+
+	return htiResult;
+
+} // End of function TreeViewWindowInsertUniqueItem
+
 BOOL TreeViewWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint )
 {
 	// Move tree view window
@@ -183,3 +262,17 @@ void TreeViewWindowSetFont( HFONT hFont )
 	::SendMessage( g_hWndTreeView, WM_SETFONT, ( WPARAM )hFont, ( LPARAM )TRUE );
 
 } // End of function TreeViewWindowSetFont
+
+BOOL TreeViewWindowUpdate()
+{
+	BOOL bResult;
+
+	// Invalidate entire tree view window
+	InvalidateRect( g_hWndTreeView, NULL, TRUE );
+
+	// Update tree view window
+	bResult = UpdateWindow( g_hWndTreeView );
+
+	return bResult;
+
+} // End of function TreeViewWindowUpdate

@@ -26,8 +26,12 @@ BOOL TreeViewWindowHandleNotifyMessage( WPARAM wParam, LPARAM lParam, void( *lpS
 
 HTREEITEM TreeViewWindowInsertItem( LPCTSTR lpszItemText, HTREEITEM htiParent = TVI_ROOT, HTREEITEM htiInsertAfter = TVI_LAST );
 
+HTREEITEM TreeViewWindowInsertUniqueItem( LPCTSTR lpszItemText, HTREEITEM htiParent = TVI_ROOT, HTREEITEM htiInsertAfter = TVI_LAST );
+
 BOOL TreeViewWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint = TRUE );
 
 HWND TreeViewWindowSetFocus();
 
 void TreeViewWindowSetFont( HFONT hFont );
+
+BOOL TreeViewWindowUpdate();

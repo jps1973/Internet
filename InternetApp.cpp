@@ -20,20 +20,34 @@ BOOL DisplayTagFunction( LPCTSTR lpszTag )
 	if( InternetFileGetTagName( lpszTag, lpszTagName ) )
 	{
 		// Successfully got tag name
-		HTREEITEM htiTagName;
 
-		// Insert tag name
-		htiTagName = TreeViewWindowInsertItem( lpszTagName );
+		// Ensure that tag is not empty
+		if( lpszTagName[ 0 ] )
+		{
+			// Tag is not empty
 
-		// Add tag to tree view window
-		if( TreeViewWindowInsertItem( lpszTag, htiTagName ) )
-		{ 
-			// Successfully added tag to tree view window
+			// Ensure that tag is not an end tag
+			if( lpszTagName[ 0 ] != INTERNET_FILE_END_TAG_PREFIX )
+			{
+				// Tag is not an end tag
+				HTREEITEM htiTagName;
 
-			// Update return value
-			bResult = TRUE;
+				// Insert tag name
+				htiTagName = TreeViewWindowInsertUniqueItem( lpszTagName, TVI_ROOT, TVI_SORT );
 
-		} // End of successfully added tag to tree view window
+				// Add tag to tree view window
+				if( TreeViewWindowInsertItem( lpszTag, htiTagName ) )
+				{ 
+					// Successfully added tag to tree view window
+
+					// Update return value
+					bResult = TRUE;
+
+				} // End of successfully added tag to tree view window
+
+			} // End of tag is not an end tag
+
+		} // End of tag is not empty
 
 	} // End of successfully got tag name
 
@@ -328,6 +342,9 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 
 								// Process tags in internet file
 								nTagCount = InternetFileProcessTags( &DisplayTagFunction );
+
+								// Update tree view window
+								TreeViewWindowUpdate();
 
 								// Format status message
 								wsprintf( lpszStatusMessage, INTERNET_FILE_PROCESS_TAGS_FORMAT_STRING, lpszUrl, nTagCount );
