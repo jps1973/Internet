@@ -6,6 +6,173 @@
 static LPTSTR g_lpszFileText;
 static DWORD g_dwFileSize;
 
+BOOL InternetFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszParentUrl, LPCTSTR lpszAttributeName, LPTSTR lpszAttributeValue )
+{
+	BOOL bResult = FALSE;
+
+	LPTSTR lpszFoundAttributeName;
+
+	// Find attribute name in tag
+	lpszFoundAttributeName = strstr( lpszTag, lpszAttributeName );
+
+	// Ensure that attribute name was found in tag
+	if( lpszAttributeName )
+	{
+		// Successfully found attribute name in tag
+		LPTSTR lpszInvertedComma;
+
+		// Find first inverted comma after attribute name
+		lpszInvertedComma = strchr( lpszFoundAttributeName, ASCII_INVERTED_COMMA_CHARACTER );
+
+		// Ensure that inverted comma was found
+		if( lpszInvertedComma )
+		{
+			// Successfully found inverted comma
+
+			// Allocate string memory
+			LPTSTR lpszRelativeAttributeValue = new char[ STRING_LENGTH ];
+
+			// Copy text into relative attribute value
+			lstrcpy( lpszRelativeAttributeValue, ( lpszInvertedComma + sizeof( char ) ) );
+
+			// Find first inverted comma in relative attribute value
+			lpszInvertedComma = strchr( lpszRelativeAttributeValue, ASCII_INVERTED_COMMA_CHARACTER );
+
+			// Ensure that inverted comma was found
+			if( lpszInvertedComma )
+			{
+				// Successfully found inverted comma
+				LPTSTR lpszQuestionMark;
+
+				// Terminate relative attribute value
+				lpszInvertedComma[ 0 ] = ( char )NULL;
+
+				// See if relative attribute value is absolute
+				if( strstr( lpszRelativeAttributeValue, INTERNET_FILE_ABSOLUTE_IDENTIFIER ) )
+				{
+					// Relative attribute value is absolute
+
+					// Use relative value as attribute value
+					lstrcpy( lpszAttributeValue, lpszRelativeAttributeValue );
+
+				} // End of relative attribute value is absolute
+				else
+				{
+					// Relative attribute value is not absolute
+
+					// Copy parent url into attribute value
+					lstrcpy( lpszAttributeValue, lpszParentUrl );
+
+					// See if relative url begins with a forward slash character
+					if( lpszRelativeAttributeValue[ 0 ] == ASCII_FORWARD_SLASH_CHARACTER )
+					{
+						// Relative url begins with a forward slash character
+
+						// Append relative value (after forward slash character) onto attribute value
+						lstrcat( lpszAttributeValue, ( lpszRelativeAttributeValue + sizeof( char ) ) );
+
+					} // End of relative url begins with a forward slash character
+					else
+					{
+						// Relative url does not begin with a forward slash character
+
+						// Append relative value onto attribute value
+						lstrcat( lpszAttributeValue, lpszRelativeAttributeValue );
+
+					} // End of relative url does not begin with a forward slash character
+
+				} // End of relative attribute value is not absolute
+
+				// Find first question mark in attribute value
+				lpszQuestionMark = strchr( lpszAttributeValue, ASCII_QUESTION_MARK_CHARACTER );
+
+				// See if first question mark was found in attribute value
+				if( lpszQuestionMark )
+				{
+					// Successfully found first question mark in attribute value
+
+					// Terminate attribute value at first question mark
+					lpszQuestionMark[ 0 ] = ( char )NULL;
+
+				} // End of successfully found first question mark in attribute value
+
+				// Update return value
+				bResult = TRUE;
+
+			} // End of successfully found inverted comma
+			else
+			{
+				// Unable to find inverted comma
+
+				// Clear attribute value
+				lpszAttributeValue[ 0 ] = ( char )NULL;
+
+			} // End of unable to find inverted comma
+
+			// Free string memory
+			delete [] lpszRelativeAttributeValue;
+
+		} // End of successfully found inverted comma
+		else
+		{
+			// Unable to find inverted comma
+
+			// Clear attribute value
+			lpszAttributeValue[ 0 ] = ( char )NULL;
+
+		} // End of unable to find inverted comma
+
+	} // End of successfully found attribute name in tag
+	else
+	{
+		// Unable to find attribute name in tag
+
+		// Clear attribute value
+		lpszAttributeValue[ 0 ] = ( char )NULL;
+
+	} // End of unable to find attribute name in tag
+
+	return bResult;
+
+} // End of function InternetFileGetAttributeValue
+
+BOOL InternetFileGetTagName( LPCTSTR lpszTag, LPTSTR lpszTagName )
+{
+	BOOL bResult;
+
+	int nEndOfTagName;
+
+	// copy tag name
+	lstrcpy( lpszTagName, ( lpszTag + sizeof( char ) ) );
+
+	// Find end of tag name
+	nEndOfTagName = strcspn( lpszTagName, INTERNET_FILE_END_OF_TAG_NAME_CHARACTERS );
+
+	// Ensure that end of tag name was found
+	if( nEndOfTagName < lstrlen( lpszTagName ) )
+	{
+		// Successfully found end of tag name
+
+		// Terminate tag name
+		lpszTagName[ nEndOfTagName ] = ( char )NULL;
+
+		// Update return value
+		bResult = TRUE;
+
+	} // End of successfully found end of tag name
+	else
+	{
+		// Unable to find end of tag name
+
+		// Clear tag name
+		lpszTagName[ 0 ] = ( char )NULL;
+
+	} // End of unable to find end of tag name
+
+	return bResult;
+
+} // End of function InternetFileGetTagName
+
 BOOL InternetFileLoad( LPCTSTR lpszFileName )
 {
 	BOOL bResult = FALSE;

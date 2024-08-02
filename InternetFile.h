@@ -32,6 +32,10 @@
 
 #define INTERNET_FILE_UNABLE_TO_LOAD_ERROR_MESSAGE_FORMAT_STRING				"Unable to load %s"
 
+BOOL InternetFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszParentUrl, LPCTSTR lpszAttributeName, LPTSTR lpszAttributeValue );
+
+BOOL InternetFileGetTagName( LPCTSTR lpszTag, LPTSTR lpszTagName );
+
 BOOL InternetFileLoad( LPCTSTR lpszFileName );
 
 int InternetFileProcessTags( BOOL( *lpTagFunction )( LPCTSTR lpszTag ) );
