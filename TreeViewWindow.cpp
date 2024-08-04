@@ -61,13 +61,58 @@ BOOL TreeViewWindowGetRect( LPRECT lpRect )
 
 } // End of function TreeViewWindowGetRect
 
-BOOL TreeViewWindowHandleNotifyMessage( WPARAM, LPARAM lParam, void( *lpSelectionChangedFunction )( LPCTSTR lpszItemText ) )
+BOOL TreeViewWindowHandleNotifyMessage( WPARAM, LPARAM lParam, void( *lpDoubleClickFunction )( LPCTSTR lpszItemText ), void( *lpSelectionChangedFunction )( LPCTSTR lpszItemText ) )
 {
 	BOOL bResult = FALSE;
 
 	// Select tree view window notification code
 	switch( ( ( LPNMHDR )lParam )->code )
 	{
+		case NM_DBLCLK:
+		{
+			// A Double click notification code
+			HTREEITEM htiSelected;
+
+			// Get highlighted tree item
+			htiSelected = ( HTREEITEM )SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_CARET, ( LPARAM )0 );
+
+			// Ensure that selected tree item was got
+			if( htiSelected )
+			{
+				// Successfully got selected tree item
+
+				// See if this is a top level tree item
+				if( SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_PARENT, ( LPARAM )htiSelected ) )
+				{
+					// This is not a top level tree item
+
+					// Allocate string memory
+					LPTSTR lpszItemText = new char[ STRING_LENGTH ];
+
+					// Get item text
+					if( TreeViewWindowGetItemText( htiSelected, lpszItemText ) )
+					{
+						// Successfully got item text
+
+						// Call double click function
+						( *lpDoubleClickFunction )( lpszItemText );
+
+						// Update return value
+						bResult = TRUE;
+
+					} // End of successfully got item text
+
+					// Free string memory
+					delete [] lpszItemText;
+
+				} // End of this is not a top level tree item
+
+			} // End of successfully got selected tree item
+
+			// Break out of switch
+			break;
+
+		} // End of a double click notification code
 		case NM_RCLICK:
 		{
 			// A right click notification code

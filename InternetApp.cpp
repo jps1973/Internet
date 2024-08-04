@@ -143,6 +143,13 @@ BOOL DownloadFile( LPCTSTR lpszUrl )
 
 } // End of function DownloadFile
 
+void TreeViewWindowDoubleClickFunction( LPCTSTR lpszItemText )
+{
+	// Show item text
+	MessageBox( NULL, lpszItemText, "", MB_OK );
+	
+} // End of function TreeViewWindowDoubleClickFunction
+
 void TreeViewWindowSelectionChangedFunction( LPCTSTR lpszItemText )
 {
 	// Show item text on status bar window
@@ -517,7 +524,7 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 				// Notify message is from tree view window
 
 				// Handle notify message from tree view window
-				if( !( TreeViewWindowHandleNotifyMessage( wParam, lParam, &TreeViewWindowSelectionChangedFunction ) ) )
+				if( !( TreeViewWindowHandleNotifyMessage( wParam, lParam, &TreeViewWindowDoubleClickFunction, &TreeViewWindowSelectionChangedFunction ) ) )
 				{
 					// Notify message was not handled from tree view window
 
