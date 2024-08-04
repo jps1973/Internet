@@ -2,13 +2,6 @@
 
 #include "InternetApp.h"
 
-void TreeViewWindowSelectionChangedFunction( LPCTSTR lpszItemText )
-{
-	// Show item text on status bar window
-	StatusBarWindowSetText( lpszItemText );
-	
-} // End of function TreeViewWindowSelectionChangedFunction
-
 BOOL DisplayTagFunction( LPCTSTR lpszTag )
 {
 	BOOL bResult = FALSE;
@@ -57,6 +50,105 @@ BOOL DisplayTagFunction( LPCTSTR lpszTag )
 	return bResult;
 	
 } // End of function DisplayTagFunction
+
+BOOL DownloadFile( LPCTSTR lpszUrl )
+{
+	BOOL bResult = FALSE;
+
+	// Allocate string memory
+	LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
+	LPTSTR lpszStatusMessage = new char[ STRING_LENGTH ];
+
+	// Format status message
+	wsprintf( lpszStatusMessage, DOWNLOADING_INTERNET_FILE_STATUS_MESSAGE_FORMAT_STRING, lpszUrl );
+
+	// Show status message on status bar window
+	StatusBarWindowSetText( lpszStatusMessage );
+
+	// Download file from url
+	if( InternetDownloadFile( lpszUrl, lpszLocalFilePath ) )
+	{
+		// Successfully downloaded file from url
+
+		// Format status message
+		wsprintf( lpszStatusMessage, LOADING_LOCAL_FILE_STATUS_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
+
+		// Show status message on status bar window
+		StatusBarWindowSetText( lpszStatusMessage );
+
+		// Load internet file
+		if( InternetFileLoad( lpszLocalFilePath ) )
+		{
+			// Successfully loaded internet file
+			int nTagCount;
+
+			// Format status message
+			wsprintf( lpszStatusMessage, PROCESSING_TAGS_IN_LOCAL_FILE_STATUS_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
+
+			// Show status message on status bar window
+			StatusBarWindowSetText( lpszStatusMessage );
+
+			// Process tags in internet file
+			nTagCount = InternetFileProcessTags( &DisplayTagFunction );
+
+			// Update tree view window
+			TreeViewWindowUpdate();
+
+			// Format status message
+			wsprintf( lpszStatusMessage, INTERNET_FILE_PROCESS_TAGS_FORMAT_STRING, lpszUrl, nTagCount );
+
+			// Show status message on status bar window
+			StatusBarWindowSetText( lpszStatusMessage );
+
+			// Update return value
+			bResult = TRUE;
+
+		} // End of successfully loaded internet file
+		else
+		{
+			// Unable to load internet file
+
+			// Format status message
+			wsprintf( lpszStatusMessage, INTERNET_FILE_UNABLE_TO_LOAD_ERROR_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
+
+			// Display status message
+			MessageBox( NULL, lpszStatusMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
+
+			// Show status message on status bar window
+			StatusBarWindowSetText( lpszStatusMessage );
+
+		} // End of unable to load internet file
+
+	} // End of successfully downloaded file from url
+	else
+	{
+		// Unable to download file from url
+
+		// Format status message
+		wsprintf( lpszStatusMessage, INTERNET_UNABLE_DOWNLOAD_FILE_FORMAT_STRING, lpszUrl );
+
+		// Display status message
+		MessageBox( NULL, lpszStatusMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
+
+		// Show status message on status bar window
+		StatusBarWindowSetText( lpszStatusMessage );
+
+	} // End of unable to download file from url
+
+	// Free string memory
+	delete [] lpszLocalFilePath;
+	delete [] lpszStatusMessage;
+
+	return bResult;
+
+} // End of function DownloadFile
+
+void TreeViewWindowSelectionChangedFunction( LPCTSTR lpszItemText )
+{
+	// Show item text on status bar window
+	StatusBarWindowSetText( lpszItemText );
+	
+} // End of function TreeViewWindowSelectionChangedFunction
 
 void EditWindowUpdateFunction( int nTextLength )
 {
@@ -307,86 +399,8 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 					{
 						// Successfully got url from edit window
 
-						// Allocate string memory
-						LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
-						LPTSTR lpszStatusMessage = new char[ STRING_LENGTH ];
-
-						// Format status message
-						wsprintf( lpszStatusMessage, DOWNLOADING_INTERNET_FILE_STATUS_MESSAGE_FORMAT_STRING, lpszUrl );
-
-						// Show status message on status bar window
-						StatusBarWindowSetText( lpszStatusMessage );
-
 						// Download file from url
-						if( InternetDownloadFile( lpszUrl, lpszLocalFilePath ) )
-						{
-							// Successfully downloaded file from url
-
-							// Format status message
-							wsprintf( lpszStatusMessage, LOADING_LOCAL_FILE_STATUS_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
-
-							// Show status message on status bar window
-							StatusBarWindowSetText( lpszStatusMessage );
-
-							// Load internet file
-							if( InternetFileLoad( lpszLocalFilePath ) )
-							{
-								// Successfully loaded internet file
-								int nTagCount;
-
-								// Format status message
-								wsprintf( lpszStatusMessage, PROCESSING_TAGS_IN_LOCAL_FILE_STATUS_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
-
-								// Show status message on status bar window
-								StatusBarWindowSetText( lpszStatusMessage );
-
-								// Process tags in internet file
-								nTagCount = InternetFileProcessTags( &DisplayTagFunction );
-
-								// Update tree view window
-								TreeViewWindowUpdate();
-
-								// Format status message
-								wsprintf( lpszStatusMessage, INTERNET_FILE_PROCESS_TAGS_FORMAT_STRING, lpszUrl, nTagCount );
-
-								// Show status message on status bar window
-								StatusBarWindowSetText( lpszStatusMessage );
-
-							} // End of successfully loaded internet file
-							else
-							{
-								// Unable to load internet file
-
-								// Format status message
-								wsprintf( lpszStatusMessage, INTERNET_FILE_UNABLE_TO_LOAD_ERROR_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
-
-								// Display status message
-								MessageBox( NULL, lpszStatusMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
-
-								// Show status message on status bar window
-								StatusBarWindowSetText( lpszStatusMessage );
-
-							} // End of unable to load internet file
-
-						} // End of successfully downloaded file from url
-						else
-						{
-							// Unable to download file from url
-
-							// Format status message
-							wsprintf( lpszStatusMessage, INTERNET_UNABLE_DOWNLOAD_FILE_FORMAT_STRING, lpszUrl );
-
-							// Display status message
-							MessageBox( NULL, lpszStatusMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
-
-							// Show status message on status bar window
-							StatusBarWindowSetText( lpszStatusMessage );
-
-						} // End of unable to download file from url
-
-						// Free string memory
-						delete [] lpszLocalFilePath;
-						delete [] lpszStatusMessage;
+						DownloadFile( lpszUrl );
 
 					} // End of successfully got url from edit window
 
