@@ -34,7 +34,10 @@
 
 #define INTERNET_FILE_PROCESS_TAGS_FORMAT_STRING								"%s (%d tags)"
 
+#define INTERNET_FILE_UNKNOWN_TAG_TYPE_ERROR_MESSAGE_TITLE						"Unknown Tag Type"
+
 #define INTERNET_FILE_UNABLE_TO_LOAD_ERROR_MESSAGE_FORMAT_STRING				"Unable to load %s"
+#define INTERNET_FILE_UNABLE_TO_GET_TAG_NAME_ERROR_MESSAGE_FORMAT_STRING		"Unable to get tag name (%s)"
 
 BOOL InternetFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszParentUrl, LPCTSTR lpszAttributeName, LPTSTR lpszAttributeValue );
 

@@ -20,5 +20,6 @@
 #define INTERNET_UNABLE_TO_OPEN_ERROR_MESSAGE									"Unable to open internet"
 
 #define INTERNET_UNABLE_DOWNLOAD_FILE_FORMAT_STRING								"Unable to Download %s"
+#define INTERNET_SUCESSFULLY_DOWNLOADED_FILE_FORMAT_STRING						"Successfully Downloaded %s to %s"
 
 BOOL InternetDownloadFile( LPCTSTR lpszUrl, LPTSTR lpszLocalFilePath );

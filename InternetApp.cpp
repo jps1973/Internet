@@ -2,6 +2,9 @@
 
 #include "InternetApp.h"
 
+// Global variables
+LPTSTR g_lpszParentURL;
+
 BOOL DisplayTagFunction( LPCTSTR lpszTag )
 {
 	BOOL bResult = FALSE;
@@ -69,6 +72,9 @@ BOOL DownloadFile( LPCTSTR lpszUrl, LPTSTR lpszLocalFilePath )
 	{
 		// Successfully downloaded file from url
 
+		// Format status message
+		wsprintf( lpszStatusMessage, INTERNET_SUCESSFULLY_DOWNLOADED_FILE_FORMAT_STRING, lpszUrl, lpszLocalFilePath );
+
 		// Update return value
 		bResult = TRUE;
 
@@ -77,16 +83,13 @@ BOOL DownloadFile( LPCTSTR lpszUrl, LPTSTR lpszLocalFilePath )
 	{
 		// Unable to download file from url
 
-		// Format status message
-		wsprintf( lpszStatusMessage, INTERNET_UNABLE_DOWNLOAD_FILE_FORMAT_STRING, lpszUrl );
-
 		// Display status message
 		MessageBox( NULL, lpszStatusMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
 
-		// Show status message on status bar window
-		StatusBarWindowSetText( lpszStatusMessage );
-
 	} // End of unable to download file from url
+
+	// Show status message on status bar window
+	StatusBarWindowSetText( lpszStatusMessage );
 
 	// Free string memory
 	delete [] lpszStatusMessage;
@@ -171,11 +174,96 @@ BOOL TreeViewWindowDownloadFile( LPCTSTR lpszUrl )
 
 } // End of function TreeViewWindowDownloadFile
 
+BOOL ProcessTag( LPCTSTR lpszTag )
+{
+	BOOL bResult = FALSE;
+
+	// Allocate string memory
+	LPTSTR lpszTagName			= new char[ STRING_LENGTH ];
+	LPTSTR lpszStatusMessage	= new char[ STRING_LENGTH ];
+
+	// Get tag name
+	if( InternetFileGetTagName( lpszTag, lpszTagName ) )
+	{
+		// Successfully got tag name
+
+		// See if this is an image tag
+		if( lstrcmpi( lpszTagName, INTERNET_FILE_IMAGE_TAG_NAME ) == 0 )
+		{
+			// This is an image tag
+
+			// Allocate string memory
+			LPTSTR lpszTargetURL = new char[ STRING_LENGTH ];
+
+			// Get target url
+			if( InternetFileGetAttributeValue( lpszTag, g_lpszParentURL, INTERNET_FILE_IMAGE_TAG_ATTRIBUTE_NAME, lpszTargetURL ) )
+			{
+				// Successfully got target url
+
+				// Allocate string memory
+				LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
+
+				// Download image
+				DownloadFile( lpszTargetURL, lpszLocalFilePath );
+
+				// Free string memory
+				delete [] lpszLocalFilePath;
+
+			} // End of successfully got target url
+			else
+			{
+				// Unable to get target url
+
+				// Format status message
+				wsprintf( lpszStatusMessage, "Unable to get Target URL for %s", lpszTag );
+
+				// Dusplay status message
+				MessageBox( NULL, lpszStatusMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
+
+				// Show status message on status bar window
+				StatusBarWindowSetText( lpszStatusMessage );
+
+			} // End of unable to get target url
+
+			// Free string memory
+			delete [] lpszTargetURL;
+
+		} // End of this is an image tag
+		else
+		{
+			// This is an unknown tag
+
+			// Display message
+			MessageBox( NULL, lpszTag, INTERNET_FILE_UNKNOWN_TAG_TYPE_ERROR_MESSAGE_TITLE, ( MB_OK | MB_ICONINFORMATION ) );
+
+		} // End of this is an unknown tag
+
+	} // End of successfully got tag name
+	else
+	{
+		// Unable to get tag name
+
+		// Format status message
+		wsprintf( lpszStatusMessage, INTERNET_FILE_UNABLE_TO_GET_TAG_NAME_ERROR_MESSAGE_FORMAT_STRING, lpszTag );
+
+		// Show status message on status bar window
+		StatusBarWindowSetText( lpszStatusMessage );
+
+	} // End of unable to get tag name
+
+	// Free string memory
+	delete [] lpszTagName;
+	delete [] lpszStatusMessage;
+	
+	return bResult;
+
+} // End of function ProcessTag
+
 void TreeViewWindowDoubleClickFunction( LPCTSTR lpszItemText )
 {
-	// Show item text
-	MessageBox( NULL, lpszItemText, "", MB_OK );
-	
+	// Process tag
+	ProcessTag( lpszItemText );
+
 } // End of function TreeViewWindowDoubleClickFunction
 
 void TreeViewWindowSelectionChangedFunction( LPCTSTR lpszItemText )
@@ -426,21 +514,15 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 				{
 					// A button window command
 
-					// Allocate string memory
-					LPTSTR lpszUrl = new char[ STRING_LENGTH ];
-
 					// Get url from edit window
-					if( EditWindowGetText( lpszUrl ) )
+					if( EditWindowGetText( g_lpszParentURL ) )
 					{
 						// Successfully got url from edit window
 
 						// Download file from url
-						TreeViewWindowDownloadFile( lpszUrl );
+						TreeViewWindowDownloadFile( g_lpszParentURL );
 
 					} // End of successfully got url from edit window
-
-					// Free string memory
-					delete [] lpszUrl;
 
 					// Break out of switch
 					break;
@@ -636,6 +718,12 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPTSTR, int nCmdShow )
 
 	WNDCLASSEX wcMain;
 
+	// Allocate global memory
+	g_lpszParentURL = new char[ STRING_LENGTH ];
+
+	// Clear parent url
+	g_lpszParentURL[ 0 ] = ( char )NULL;
+
 	// Clear message structure
 	ZeroMemory( &msg, sizeof( msg ) );
 
@@ -755,6 +843,9 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPTSTR, int nCmdShow )
 		MessageBox( NULL, UNABLE_TO_REGISTER_MAIN_WINDOW_CLASS_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
 
 	} // End of unable to register main window class
+
+	// Free global memory
+	delete [] g_lpszParentURL;
 
 	return msg.wParam;
 

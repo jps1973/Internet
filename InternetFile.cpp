@@ -16,7 +16,7 @@ BOOL InternetFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszParentUrl, LPCT
 	lpszFoundAttributeName = strstr( lpszTag, lpszAttributeName );
 
 	// Ensure that attribute name was found in tag
-	if( lpszAttributeName )
+	if( lpszFoundAttributeName )
 	{
 		// Successfully found attribute name in tag
 		LPTSTR lpszInvertedComma;
