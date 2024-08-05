@@ -61,6 +61,13 @@ BOOL TreeViewWindowGetRect( LPRECT lpRect )
 
 } // End of function TreeViewWindowGetRect
 
+HTREEITEM TreeViewWindowGetSelected()
+{
+	// Get selected tree item
+	return ( HTREEITEM )SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_CARET, ( LPARAM )0 );
+
+} // End of function TreeViewWindowGetSelected
+
 BOOL TreeViewWindowHandleNotifyMessage( WPARAM, LPARAM lParam, void( *lpDoubleClickFunction )( LPCTSTR lpszItemText ), void( *lpSelectionChangedFunction )( LPCTSTR lpszItemText ) )
 {
 	BOOL bResult = FALSE;
@@ -73,7 +80,7 @@ BOOL TreeViewWindowHandleNotifyMessage( WPARAM, LPARAM lParam, void( *lpDoubleCl
 			// A Double click notification code
 			HTREEITEM htiSelected;
 
-			// Get highlighted tree item
+			// Get selected tree item
 			htiSelected = ( HTREEITEM )SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_CARET, ( LPARAM )0 );
 
 			// Ensure that selected tree item was got
@@ -287,6 +294,23 @@ HTREEITEM TreeViewWindowInsertUniqueItem( LPCTSTR lpszItemText, HTREEITEM htiPar
 
 } // End of function TreeViewWindowInsertUniqueItem
 
+BOOL TreeViewWindowIsGroup( HTREEITEM hti )
+{
+	BOOL bResult = TRUE; // Assume item is a group
+
+	// See if item has a parent
+	if( SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_PARENT, ( LPARAM )hti ) )
+	{
+		// Item has a parent (so is a tag, not a group)
+
+		// Update return value
+		bResult = FALSE;
+
+	} // End of item has a parent (so is a tag, not a group)
+
+	return bResult;
+
+} // End of function TreeViewWindowIsGroup
 BOOL TreeViewWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint )
 {
 	// Move tree view window

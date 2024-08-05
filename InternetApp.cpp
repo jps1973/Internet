@@ -556,6 +556,28 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 					break;
 
 				} // End of a help about command
+				case IDM_PROCESS_GROUP:
+				{
+					// A process group command
+
+					// Show message
+					MessageBox( hWndMain, "A process group command", INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+
+					// Break out of switch
+					break;
+
+				} // End of a process group command
+				case IDM_PROCESS_TAG:
+				{
+					// A process tag command
+
+					// Show message
+					MessageBox( hWndMain, "A process tag command", INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+
+					// Break out of switch
+					break;
+
+				} // End of a process tag command
 				default:
 				{
 					// Default command
@@ -678,9 +700,47 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 		{
 			// A context menu message
 			HMENU hMenuContext;
+			HTREEITEM htiSelected;
 
-			// Load context menu
+			// Load 'group' context menu
 			hMenuContext = LoadMenu( NULL, MAKEINTRESOURCE( IDR_CONTEXT_MENU ) );
+
+			// Get selected tree item
+			htiSelected = TreeViewWindowGetSelected();
+
+			// Ensure that selected tree item was got
+			if( htiSelected )
+			{
+				// Successfully got selected tree item
+
+				// See if selected tree item is a group
+				if( TreeViewWindowIsGroup( htiSelected ) )
+				{
+					// Selected tree item is a group
+
+					// Disable tag menu item
+					EnableMenuItem( hMenuContext, IDM_PROCESS_TAG, ( MF_BYCOMMAND | MF_GRAYED ) );
+
+				} // End of selected tree item is a group
+				else
+				{
+					// Selected tree item is not a group
+
+					// Disable group menu item
+					EnableMenuItem( hMenuContext, IDM_PROCESS_GROUP, ( MF_BYCOMMAND | MF_GRAYED ) );
+
+				} // End of selected tree item is not a group
+
+			} // End of successfully got selected tree item
+			else
+			{
+				// Unable to get selected tree item
+
+				// Disable tag and group menu items
+				EnableMenuItem( hMenuContext, IDM_PROCESS_TAG, ( MF_BYCOMMAND | MF_GRAYED ) );
+				EnableMenuItem( hMenuContext, IDM_PROCESS_GROUP, ( MF_BYCOMMAND | MF_GRAYED ) );
+
+			} // End of unable to get selected tree item
 
 			// Show context menu
 			TrackPopupMenu( GetSubMenu( hMenuContext, 0 ), ( TPM_LEFTALIGN | TPM_LEFTBUTTON ), LOWORD( lParam ), HIWORD( lParam ), 0, hWndMain, NULL );
