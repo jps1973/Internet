@@ -174,6 +174,56 @@ BOOL TreeViewWindowDownloadFile( LPCTSTR lpszUrl )
 
 } // End of function TreeViewWindowDownloadFile
 
+BOOL ProcessTagDownload( LPCTSTR lpszTag, LPCTSTR lpszAttributeName )
+{
+	BOOL bResult = FALSE;
+
+	// Allocate string memory
+	LPTSTR lpszTargetURL = new char[ STRING_LENGTH ];
+
+	// Get target url
+	if( InternetFileGetAttributeValue( lpszTag, g_lpszParentURL, lpszAttributeName, lpszTargetURL ) )
+	{
+		// Successfully got target url
+
+		// Allocate string memory
+		LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
+
+		// Download image
+		DownloadFile( lpszTargetURL, lpszLocalFilePath );
+
+		// Free string memory
+		delete [] lpszLocalFilePath;
+
+	} // End of successfully got target url
+	else
+	{
+		// Unable to get target url
+
+		// Allocate string memory
+		LPTSTR lpszStatusMessage	= new char[ STRING_LENGTH ];
+
+		// Format status message
+		wsprintf( lpszStatusMessage, INTERNET_FILE_UNABLE_TO_GET_TARGET_URL_ERROR_MESSAGE_FORMAT_STRING, lpszTag );
+
+		// Dusplay status message
+		MessageBox( NULL, lpszStatusMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
+
+		// Show status message on status bar window
+		StatusBarWindowSetText( lpszStatusMessage );
+
+		// Free string memory
+		delete [] lpszStatusMessage;
+
+	} // End of unable to get target url
+
+	// Free string memory
+	delete [] lpszTargetURL;
+
+	return bResult;
+
+} // End of function ProcessTagDownload
+
 BOOL ProcessTag( LPCTSTR lpszTag )
 {
 	BOOL bResult = FALSE;
@@ -192,41 +242,8 @@ BOOL ProcessTag( LPCTSTR lpszTag )
 		{
 			// This is an image tag
 
-			// Allocate string memory
-			LPTSTR lpszTargetURL = new char[ STRING_LENGTH ];
-
-			// Get target url
-			if( InternetFileGetAttributeValue( lpszTag, g_lpszParentURL, INTERNET_FILE_IMAGE_TAG_ATTRIBUTE_NAME, lpszTargetURL ) )
-			{
-				// Successfully got target url
-
-				// Allocate string memory
-				LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
-
-				// Download image
-				DownloadFile( lpszTargetURL, lpszLocalFilePath );
-
-				// Free string memory
-				delete [] lpszLocalFilePath;
-
-			} // End of successfully got target url
-			else
-			{
-				// Unable to get target url
-
-				// Format status message
-				wsprintf( lpszStatusMessage, "Unable to get Target URL for %s", lpszTag );
-
-				// Dusplay status message
-				MessageBox( NULL, lpszStatusMessage, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
-
-				// Show status message on status bar window
-				StatusBarWindowSetText( lpszStatusMessage );
-
-			} // End of unable to get target url
-
-			// Free string memory
-			delete [] lpszTargetURL;
+			// Download image
+			ProcessTagDownload( lpszTag, INTERNET_FILE_IMAGE_TAG_ATTRIBUTE_NAME );
 
 		} // End of this is an image tag
 		else
@@ -254,7 +271,7 @@ BOOL ProcessTag( LPCTSTR lpszTag )
 	// Free string memory
 	delete [] lpszTagName;
 	delete [] lpszStatusMessage;
-	
+
 	return bResult;
 
 } // End of function ProcessTag
