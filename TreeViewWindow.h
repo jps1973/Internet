@@ -14,11 +14,15 @@
 #define TREE_VIEW_WINDOW_STYLE													( WS_CHILD | WS_VISIBLE | WS_BORDER | TVS_HASBUTTONS | TVS_HASLINES | TVS_LINESATROOT )
 #define TREE_VIEW_WINDOW_TEXT													NULL
 
+#define TREE_VIEW_WINDOW_PROCESS_GROUP_STATUS_MESSAGE_FORMAT_STRING				"Successfully processed %d items in group"
+
 BOOL IsTreeViewWindow( HWND hWnd );
 
 BOOL TreeViewWindowCreate( HWND hWndParent, HINSTANCE hInstance );
 
 BOOL TreeViewWindowGetItemText( HTREEITEM htiItem, LPTSTR lpszItemText );
+
+BOOL TreeViewWindowGetItemText( LPTSTR lpszItemText );
 
 BOOL TreeViewWindowGetRect( LPRECT lpRect );
 
@@ -33,6 +37,10 @@ HTREEITEM TreeViewWindowInsertUniqueItem( LPCTSTR lpszItemText, HTREEITEM htiPar
 BOOL TreeViewWindowIsGroup( HTREEITEM hti );
 
 BOOL TreeViewWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint = TRUE );
+
+int TreeViewWindowProcessGroup( BOOL( *lpProcessTagFunction )( LPCTSTR lpszTag ) );
+
+int TreeViewWindowProcessGroup( HTREEITEM htiParent, BOOL( *lpProcessTagFunction )( LPCTSTR lpszTag ) );
 
 HWND TreeViewWindowSetFocus();
 

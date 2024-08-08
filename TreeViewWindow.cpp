@@ -54,6 +54,36 @@ BOOL TreeViewWindowGetItemText( HTREEITEM htiItem, LPTSTR lpszItemText )
 
 } // End of function TreeViewWindowGetItemText
 
+BOOL TreeViewWindowGetItemText( LPTSTR lpszItemText )
+{
+	BOOL bResult;
+
+	HTREEITEM htiSelected;
+
+	// Get selected tree item
+	htiSelected = ( HTREEITEM )SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_CARET, ( LPARAM )0 );
+
+	// Ensure that selected tree item was got
+	if( htiSelected )
+	{
+		// Successfully got selected tree item
+
+		// Get selected item text
+		if( TreeViewWindowGetItemText( htiSelected, lpszItemText ) )
+		{
+			// Successfuly got selected item text
+
+			// Update return value
+			bResult = TRUE;
+
+		} // End of successfuly got selected item text
+
+	} // End of successfully got selected tree item
+
+	return bResult;
+
+} // End of function TreeViewWindowGetItemText
+
 BOOL TreeViewWindowGetRect( LPRECT lpRect )
 {
 	// Get tree view window rect
@@ -317,6 +347,90 @@ BOOL TreeViewWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint 
 	return ::MoveWindow( g_hWndTreeView, nX, nY, nWidth, nHeight, bRepaint );
 
 } // End of function TreeViewWindowMove
+
+int TreeViewWindowProcessGroup( BOOL( *lpProcessTagFunction )( LPCTSTR lpszTag ) )
+{
+	int nResult = 0;
+
+	HTREEITEM htiSelected;
+
+	// Get selected tree item
+	htiSelected = ( HTREEITEM )SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_CARET, ( LPARAM )0 );
+
+	// Ensure that selected tree item was got
+	if( htiSelected )
+	{
+		// Successfully got selected tree item
+
+		// Process group
+		nResult = TreeViewWindowProcessGroup( htiSelected, lpProcessTagFunction );
+
+	} // End of successfully got selected tree item
+
+	return nResult;
+
+} // End of function TreeViewWindowProcessGroup
+
+int TreeViewWindowProcessGroup( HTREEITEM htiParent, BOOL( *lpProcessTagFunction )( LPCTSTR lpszTag ) )
+{
+	int nResult = 0;
+
+	TVITEM tvItem;
+
+	// Allocate string memory
+	LPTSTR lpszItemText = new char[ STRING_LENGTH ];
+
+	// Clear tree view item structure
+	ZeroMemory( &tvItem, sizeof( tvItem ) );
+
+	// Initialise tree view item structure
+	tvItem.mask			= TVIF_TEXT;
+	tvItem.pszText		= lpszItemText;
+	tvItem.cchTextMax	= STRING_LENGTH;
+
+	// Get first tree item
+	tvItem.hItem = ( HTREEITEM )SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_CHILD, ( LPARAM )htiParent );
+
+	// Loop through all tree items
+	while( tvItem.hItem )
+	{
+
+		// Get current item text
+		if( SendMessage( g_hWndTreeView, TVM_GETITEM, ( WPARAM )0, ( LPARAM )&tvItem ) )
+		{
+			// Successfully got current item text
+
+			// Process item
+			if( ( *lpProcessTagFunction )( lpszItemText ) )
+			{
+				// Successfully processed item
+
+				// Update return value
+				nResult ++;
+
+			} // End of successfully processed item
+
+			// Get nect tree item
+			tvItem.hItem = ( HTREEITEM )SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_NEXT, ( LPARAM )tvItem.hItem );
+
+		} // End of successfully got current item text
+		else
+		{
+			// Unable to get current item text
+
+			// Force exit from loop
+			tvItem.hItem = NULL;
+
+		} // End of unable to get current item text
+
+	}; // End of loop through all tree items
+
+	// Free string memory
+	delete [] lpszItemText;
+
+	return nResult;
+
+} // End of function TreeViewWindowProcessGroup
 
 HWND TreeViewWindowSetFocus()
 {

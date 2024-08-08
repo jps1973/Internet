@@ -190,7 +190,7 @@ BOOL ProcessTagDownload( LPCTSTR lpszTag, LPCTSTR lpszAttributeName )
 		LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
 
 		// Download image
-		DownloadFile( lpszTargetURL, lpszLocalFilePath );
+		bResult = DownloadFile( lpszTargetURL, lpszLocalFilePath );
 
 		// Free string memory
 		delete [] lpszLocalFilePath;
@@ -243,7 +243,7 @@ BOOL ProcessTag( LPCTSTR lpszTag )
 			// This is an image tag
 
 			// Download image
-			ProcessTagDownload( lpszTag, INTERNET_FILE_IMAGE_TAG_ATTRIBUTE_NAME );
+			bResult = ProcessTagDownload( lpszTag, INTERNET_FILE_IMAGE_TAG_ATTRIBUTE_NAME );
 
 		} // End of this is an image tag
 		else
@@ -559,9 +559,22 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 				case IDM_PROCESS_GROUP:
 				{
 					// A process group command
+					int nItemCount;
 
-					// Show message
-					MessageBox( hWndMain, "A process group command", INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+					// Allocate string memory
+					LPTSTR lpszStatusMessage = new char[ STRING_LENGTH ];
+
+					// Process group
+					nItemCount = TreeViewWindowProcessGroup( &ProcessTag );
+
+					// Format status message
+					wsprintf( lpszStatusMessage, TREE_VIEW_WINDOW_PROCESS_GROUP_STATUS_MESSAGE_FORMAT_STRING, nItemCount );
+
+					// Show status message on status bar window
+					StatusBarWindowSetText( lpszStatusMessage );
+
+					// Free string memory
+					delete [] lpszStatusMessage;
 
 					// Break out of switch
 					break;
@@ -571,8 +584,21 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 				{
 					// A process tag command
 
-					// Show message
-					MessageBox( hWndMain, "A process tag command", INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+					// Allocate string memory
+					LPTSTR lpszItemText = new char[ STRING_LENGTH ];
+
+					// Get item text
+					if( TreeViewWindowGetItemText( lpszItemText ) )
+					{
+						// Successfully got item text
+
+						// Process tag
+						ProcessTag( lpszItemText );
+
+					} // End of successfully got item text
+
+					// Free string memory
+					delete [] lpszItemText;
 
 					// Break out of switch
 					break;
