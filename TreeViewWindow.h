@@ -28,6 +28,10 @@ BOOL TreeViewWindowGetRect( LPRECT lpRect );
 
 HTREEITEM TreeViewWindowGetSelected();
 
+BOOL TreeViewWindowGetTopLevelItemText( HTREEITEM htiItem, LPTSTR lpszTopLevelItemText );
+
+BOOL TreeViewWindowGetTopLevelItemText( LPTSTR lpszTopLevelItemText );
+
 BOOL TreeViewWindowHandleNotifyMessage( WPARAM wParam, LPARAM lParam, void( *lpDoubleClickFunction )( LPCTSTR lpszItemText ), void( *lpSelectionChangedFunction )( LPCTSTR lpszItemText ) );
 
 HTREEITEM TreeViewWindowInsertItem( LPCTSTR lpszItemText, HTREEITEM htiParent = TVI_ROOT, HTREEITEM htiInsertAfter = TVI_SORT );

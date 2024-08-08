@@ -28,8 +28,37 @@ BOOL DisplayTagFunction( LPCTSTR lpszTag )
 				// Tag is not an end tag
 				HTREEITEM htiTagName;
 
+				// Allocate string memory
+				LPTSTR lpszHeader = new char[ STRING_LENGTH ];
+
+				// See if tag is an anchor
+				if( lstrcmpi( lpszTagName, INTERNET_FILE_ANCHOR_TAG_NAME ) == 0 )
+				{
+					// Tag is an anchor
+
+					// Update header
+					lstrcpy( lpszHeader, INTERNET_FILE_ANCHOR_TAG_HEADER );
+
+				} // End of tag is an anchor
+				else if( lstrcmpi( lpszTagName, INTERNET_FILE_IMAGE_TAG_NAME ) == 0 )
+				{
+					// Tag is an image
+
+					// Update header
+					lstrcpy( lpszHeader, INTERNET_FILE_IMAGE_TAG_HEADER );
+
+				} // End of tag is an image
+				else
+				{
+					// Tag is of unknown type
+
+					// Update header
+					lstrcpy( lpszHeader, INTERNET_FILE_UNKNOWN_TAG_HEADER );
+
+				} // End of tag is of unknown type
+
 				// Insert tag name
-				htiTagName = TreeViewWindowInsertUniqueItem( lpszTagName, TVI_ROOT, TVI_SORT );
+				htiTagName = TreeViewWindowInsertUniqueItem( lpszHeader, TVI_ROOT, TVI_SORT );
 
 				// Add tag to tree view window
 				if( TreeViewWindowInsertItem( lpszTag, htiTagName, TVI_SORT ) )
@@ -40,6 +69,9 @@ BOOL DisplayTagFunction( LPCTSTR lpszTag )
 					bResult = TRUE;
 
 				} // End of successfully added tag to tree view window
+
+				// Free string memory
+				delete [] lpszHeader;
 
 			} // End of tag is not an end tag
 
@@ -237,7 +269,15 @@ BOOL ProcessTag( LPCTSTR lpszTag )
 	{
 		// Successfully got tag name
 
-		// See if this is an image tag
+		// See if this is an anchor tag
+		if( lstrcmpi( lpszTagName, INTERNET_FILE_ANCHOR_TAG_NAME ) == 0 )
+		{
+			// This is an anchor tag
+
+			// Download item
+			bResult = ProcessTagDownload( lpszTag, INTERNET_FILE_ANCHOR_TAG_ATTRIBUTE_NAME );
+
+		} // End of this is an anchor tag
 		if( lstrcmpi( lpszTagName, INTERNET_FILE_IMAGE_TAG_NAME ) == 0 )
 		{
 			// This is an image tag
@@ -739,23 +779,48 @@ LRESULT CALLBACK MainWndProc( HWND hWndMain, UINT uMessage, WPARAM wParam, LPARA
 			{
 				// Successfully got selected tree item
 
-				// See if selected tree item is a group
-				if( TreeViewWindowIsGroup( htiSelected ) )
-				{
-					// Selected tree item is a group
+				// Allocate string memory
+				LPTSTR lpszTopLevelItemText = new char[ STRING_LENGTH ];
 
-					// Disable tag menu item
+				// Get top level item text
+				TreeViewWindowGetTopLevelItemText( htiSelected, lpszTopLevelItemText );
+
+				// See if top level item is unknown
+				if( lstrcmpi( lpszTopLevelItemText, INTERNET_FILE_UNKNOWN_TAG_HEADER ) == 0 )
+				{
+					// Top level item is unknown
+
+					// Disable tag and group menu items
 					EnableMenuItem( hMenuContext, IDM_PROCESS_TAG, ( MF_BYCOMMAND | MF_GRAYED ) );
-
-				} // End of selected tree item is a group
-				else
-				{
-					// Selected tree item is not a group
-
-					// Disable group menu item
 					EnableMenuItem( hMenuContext, IDM_PROCESS_GROUP, ( MF_BYCOMMAND | MF_GRAYED ) );
 
-				} // End of selected tree item is not a group
+				} // End of top level item is unknown
+				else
+				{
+					// Top level item is not unknown
+
+					// See if selected tree item is a group
+					if( TreeViewWindowIsGroup( htiSelected ) )
+					{
+						// Selected tree item is a group
+
+						// Disable tag menu item
+						EnableMenuItem( hMenuContext, IDM_PROCESS_TAG, ( MF_BYCOMMAND | MF_GRAYED ) );
+
+					} // End of selected tree item is a group
+					else
+					{
+						// Selected tree item is not a group
+
+						// Disable group menu item
+						EnableMenuItem( hMenuContext, IDM_PROCESS_GROUP, ( MF_BYCOMMAND | MF_GRAYED ) );
+
+					} // End of selected tree item is not a group
+
+				} // End of top level item is not unknown
+
+				// Free string memory
+				delete [] lpszTopLevelItemText;
 
 			} // End of successfully got selected tree item
 			else

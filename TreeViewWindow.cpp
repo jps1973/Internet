@@ -98,6 +98,64 @@ HTREEITEM TreeViewWindowGetSelected()
 
 } // End of function TreeViewWindowGetSelected
 
+BOOL TreeViewWindowGetTopLevelItemText( HTREEITEM htiItem, LPTSTR lpszTopLevelItemText )
+{
+	BOOL bResult;
+
+	HTREEITEM htiTopLevel;
+
+	// Get parent item as top level item
+	htiTopLevel = ( HTREEITEM )SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_PARENT, ( LPARAM )htiItem );
+
+	// Ensure that parent item was got as top level item
+	if( htiTopLevel == NULL )
+	{
+		// Unable to get parent item as top level item
+
+		// Use item as top level
+		htiTopLevel = htiItem;
+
+	} // End of unable to get parent item as top level item
+
+	// Get top level item text
+	bResult = TreeViewWindowGetItemText( htiTopLevel, lpszTopLevelItemText );
+
+	return bResult;
+
+} // End of function TreeViewWindowGetTopLevelItemText
+
+BOOL TreeViewWindowGetTopLevelItemText( LPTSTR lpszTopLevelItemText )
+{
+	BOOL bResult = FALSE;
+
+	HTREEITEM htiSelected;
+
+	// Get selected tree item
+	htiSelected = ( HTREEITEM )SendMessage( g_hWndTreeView, TVM_GETNEXTITEM, ( WPARAM )TVGN_CARET, ( LPARAM )0 );
+
+	// Ensure that selected tree item was got
+	if( htiSelected )
+	{
+		// Successfully got selected tree item
+
+		// Get top level item text
+		if( TreeViewWindowGetItemText( htiSelected, lpszTopLevelItemText ) )
+		{
+			// Successfuly got top level item text
+
+			// Update return value
+			bResult = TRUE;
+
+		} // End of successfuly got top level item text
+
+	} // End of successfully got selected tree item
+
+	return bResult;
+
+	return bResult;
+
+} // End of function TreeViewWindowGetTopLevelItemText
+
 BOOL TreeViewWindowHandleNotifyMessage( WPARAM, LPARAM lParam, void( *lpDoubleClickFunction )( LPCTSTR lpszItemText ), void( *lpSelectionChangedFunction )( LPCTSTR lpszItemText ) )
 {
 	BOOL bResult = FALSE;
