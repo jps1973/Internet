@@ -10,42 +10,71 @@ BOOL InternetFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszParentUrl, LPCT
 {
 	BOOL bResult = FALSE;
 
-	LPTSTR lpszFoundAttributeName;
+	LPTSTR lpszFind;
 
-	// Find attribute name in tag
-	lpszFoundAttributeName = strstr( lpszTag, lpszAttributeName );
+	// Find required attribute in tag
+	lpszFind = strstr( lpszTag, lpszAttributeName );
 
-	// Ensure that attribute name was found in tag
-	if( lpszFoundAttributeName )
+	// Ensure that required attribute was found in tag
+	if( lpszFind )
 	{
-		// Successfully found attribute name in tag
-		LPTSTR lpszInvertedComma;
+		// Successfully found required attribute in tag
 
-		// Find first inverted comma after attribute name
-		lpszInvertedComma = strchr( lpszFoundAttributeName, ASCII_INVERTED_COMMA_CHARACTER );
+		// Find equals sign after required attribute
+		lpszFind = strchr( lpszFind, ASCII_EQUALS_CHARACTER );
 
-		// Ensure that inverted comma was found
-		if( lpszInvertedComma )
+		// Ensure that equals sign was found after required attribute
+		if( lpszFind )
 		{
-			// Successfully found inverted comma
+			// Successfully found equals sign after required attribute
+			DWORD dwAttributeBufferLength;
+			LPTSTR lpszStartOfAttribute;
+			LPTSTR lpszEndOfAttribute;
 
-			// Allocate string memory
-			LPTSTR lpszRelativeAttributeValue = new char[ STRING_LENGTH ];
+			// Clear start and end of attribute
+			lpszStartOfAttribute	= NULL;
+			lpszEndOfAttribute		= NULL;
 
-			// Copy text into relative attribute value
-			lstrcpy( lpszRelativeAttributeValue, ( lpszInvertedComma + sizeof( char ) ) );
+			// Find first non space character after equals sign
+			for( lpszFind ++; lpszFind[ 0 ] <= ASCII_SPACE_CHARACTER; lpszFind ++ );
 
-			// Find first inverted comma in relative attribute value
-			lpszInvertedComma = strchr( lpszRelativeAttributeValue, ASCII_INVERTED_COMMA_CHARACTER );
-
-			// Ensure that inverted comma was found
-			if( lpszInvertedComma )
+			// See if attribute begins with a comma or an inverted comma
+			if( ( lpszFind[ 0 ] == ASCII_COMMA_CHARACTER ) || ( lpszFind[ 0 ] == ASCII_INVERTED_COMMA_CHARACTER ) )
 			{
-				// Successfully found inverted comma
-				LPTSTR lpszQuestionMark;
+				// Attribute begins with a comma or an inverted comma
 
-				// Terminate relative attribute value
-				lpszInvertedComma[ 0 ] = ( char )NULL;
+				// Set start of attribute
+				lpszStartOfAttribute = ( lpszFind + sizeof( char ) );
+
+				// Find end of attribute
+				lpszEndOfAttribute = strchr( lpszStartOfAttribute, lpszFind[ 0 ] );
+
+			} // End of attribute begins with a comma or an inverted comma
+			else
+			{
+				// Attribute does not begin with a comma or an inverted comma
+
+				// Set start of attribute
+				lpszStartOfAttribute = lpszFind;
+
+				// Find end of attribute
+				lpszEndOfAttribute = strpbrk( lpszStartOfAttribute, INTERNET_FILE_END_OF_TAG_NAME_CHARACTERS );
+
+			} // End of attribute does not begin with a comma or an inverted comma
+
+			// Ensure that start and end of attribute are valid
+			if( lpszStartOfAttribute && lpszEndOfAttribute )
+			{
+				// Start and end of attribute are valid
+
+				// Allocate string memory
+				LPTSTR lpszRelativeAttributeValue = new char[ STRING_LENGTH ];
+
+				// Calculate attribute buffer length
+				dwAttributeBufferLength = ( ( lpszEndOfAttribute - lpszStartOfAttribute ) + sizeof( char ) );
+
+				// Get relative attribute
+				lstrcpyn( lpszRelativeAttributeValue, lpszStartOfAttribute, dwAttributeBufferLength );
 
 				// See if relative attribute value is absolute
 				if( strstr( lpszRelativeAttributeValue, INTERNET_FILE_ABSOLUTE_IDENTIFIER ) )
@@ -84,53 +113,26 @@ BOOL InternetFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszParentUrl, LPCT
 				} // End of relative attribute value is not absolute
 
 				// Find first question mark in attribute value
-				lpszQuestionMark = strchr( lpszAttributeValue, ASCII_QUESTION_MARK_CHARACTER );
+				lpszFind = strchr( lpszAttributeValue, ASCII_QUESTION_MARK_CHARACTER );
 
 				// See if first question mark was found in attribute value
-				if( lpszQuestionMark )
+				if( lpszFind )
 				{
 					// Successfully found first question mark in attribute value
 
 					// Terminate attribute value at first question mark
-					lpszQuestionMark[ 0 ] = ( char )NULL;
+					lpszFind[ 0 ] = ( char )NULL;
 
 				} // End of successfully found first question mark in attribute value
 
 				// Update return value
 				bResult = TRUE;
 
-			} // End of successfully found inverted comma
-			else
-			{
-				// Unable to find inverted comma
+			} // End of start and end of attribute are valid
 
-				// Clear attribute value
-				lpszAttributeValue[ 0 ] = ( char )NULL;
+		} // End of successfully found equals sign after required attribute
 
-			} // End of unable to find inverted comma
-
-			// Free string memory
-			delete [] lpszRelativeAttributeValue;
-
-		} // End of successfully found inverted comma
-		else
-		{
-			// Unable to find inverted comma
-
-			// Clear attribute value
-			lpszAttributeValue[ 0 ] = ( char )NULL;
-
-		} // End of unable to find inverted comma
-
-	} // End of successfully found attribute name in tag
-	else
-	{
-		// Unable to find attribute name in tag
-
-		// Clear attribute value
-		lpszAttributeValue[ 0 ] = ( char )NULL;
-
-	} // End of unable to find attribute name in tag
+	} // End of successfully found required attribute in tag
 
 	return bResult;
 
