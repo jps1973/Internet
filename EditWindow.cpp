@@ -16,8 +16,21 @@ BOOL EditWindowCreate( HWND hWndParent, HINSTANCE hInstance )
 {
 	BOOL bResult = FALSE;
 
+	// Allocate string memory
+	LPTSTR lpszInitialText = new char[ STRING_LENGTH ];
+
+	// Get initial text from clipboard
+	if( !( ClipboardGetText( lpszInitialText, STRING_LENGTH ) ) )
+	{
+		// Unable to get initial text from clipboard
+
+		// Use default initial text
+		lstrcpy( lpszInitialText, EDIT_WINDOW_TEXT );
+
+	} // End of unable to get initial text from clipboard
+
 	// Create edit window
-	g_hWndEdit = ::CreateWindowEx( EDIT_WINDOW_EXTENDED_STYLE, EDIT_WINDOW_CLASS_NAME, EDIT_WINDOW_TEXT, EDIT_WINDOW_STYLE, 0, 0, 0, 0, hWndParent, ( HMENU )NULL, hInstance, NULL );
+	g_hWndEdit = ::CreateWindowEx( EDIT_WINDOW_EXTENDED_STYLE, EDIT_WINDOW_CLASS_NAME, lpszInitialText, EDIT_WINDOW_STYLE, 0, 0, 0, 0, hWndParent, ( HMENU )NULL, hInstance, NULL );
 
 	// Ensure that edit window was created
 	if( g_hWndEdit )
@@ -28,6 +41,10 @@ BOOL EditWindowCreate( HWND hWndParent, HINSTANCE hInstance )
 		bResult = TRUE;
 
 	} // End of successfully created edit window
+
+	// Free string memory
+	delete [] lpszInitialText;
+
 	return bResult;
 
 } // End of function EditWindowCreate

@@ -8,6 +8,8 @@
 #include "Ascii.h"
 #include "Common.h"
 
+#include "Clipboard.h"
+
 #define EDIT_WINDOW_CLASS_NAME													WC_EDIT
 
 #define EDIT_WINDOW_EXTENDED_STYLE												0
