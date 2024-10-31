@@ -3,7 +3,7 @@
 #include "ListBoxWindow.h"
 
 // Global variables
-HWND g_hWndListBox;
+static HWND g_hWndListBox;
 
 BOOL IsListBoxWindow( HWND hWnd )
 {
