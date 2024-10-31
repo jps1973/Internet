@@ -2,6 +2,52 @@
 
 #include "InternetApp.h"
 
+BOOL DownloadFile( LPCTSTR lpszUrl )
+{
+	BOOL bResult = FALSE;
+
+	// Allocate string memory
+	LPTSTR lpszLocalFilePath	= new char[ STRING_LENGTH ];
+	LPTSTR lpszStatusMessage	= new char[ STRING_LENGTH ];
+
+	// Format status message
+	wsprintf( lpszStatusMessage, INTERNET_DOWNLOADING_STATUS_MESSAGE_FORMAT_STRING, lpszUrl );
+
+	// Show status message on status bar window
+	StatusBarWindowSetText( lpszStatusMessage );
+
+	// Download file
+	if( InternetDownloadFile( lpszUrl, lpszLocalFilePath ) )
+	{
+		// Successfully downloaded file
+
+		// Format status message
+		wsprintf( lpszStatusMessage, INTERNET_SUCCESSFULLY_DOWNLOADED_STATUS_MESSAGE_FORMAT_STRING, lpszUrl, lpszLocalFilePath );
+
+		// Update return value
+		bResult = TRUE;
+
+	} // End of successfully downloaded file
+	else
+	{
+		// Unable to download file
+
+		// Format status message
+		wsprintf( lpszStatusMessage, INTERNET_UNABLE_TO_DOWNLOAD_STATUS_MESSAGE_FORMAT_STRING, lpszUrl );
+
+	} // End of unable to download file
+
+	// Show status message on status bar window
+	StatusBarWindowSetText( lpszStatusMessage );
+
+	// Free string memory
+	delete [] lpszLocalFilePath;
+	delete [] lpszStatusMessage;
+
+	return bResult;
+
+} // End of function DownloadFile
+
 void EditWindowUpdateFunction( int nTextLength )
 {
 
@@ -213,8 +259,11 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 					{
 						// Successfully got url from edit window
 
-						// Display url
-						MessageBox( hWndMain, lpszUrl, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+						// Download file
+						if( DownloadFile( lpszUrl ) )
+						{
+							// Successfully downloaded file
+						} // End of successfully downloaded file
 
 					} // End of successfully got url from edit window
 
@@ -397,86 +446,103 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE,  LPSTR, int nCmdShow )
 {
 	MSG msg;
 
-	WNDCLASSEX wcMain;
-
 	// Clear message structure
 	ZeroMemory( &msg, sizeof( msg ) );
-
-	// Clear main window class structure
-	ZeroMemory( &wcMain, sizeof( wcMain ) );
-
-	// Initialise main window class structure
-	wcMain.cbSize			= sizeof( WNDCLASSEX );
-	wcMain.style			= MAIN_WINDOW_CLASS_STYLE;
-	wcMain.lpfnWndProc		= MainWindowProcedure;
-	wcMain.hInstance		= hInstance;
-	wcMain.hIcon			= MAIN_WINDOW_CLASS_ICON;
-	wcMain.hCursor			= MAIN_WINDOW_CLASS_CURSOR;
-	wcMain.hbrBackground	= MAIN_WINDOW_CLASS_BACKGROUND;
-	wcMain.lpszMenuName		= MAIN_WINDOW_CLASS_MENU_NAME;
-	wcMain.lpszClassName	= MAIN_WINDOW_CLASS_NAME;
-	wcMain.hIconSm			= MAIN_WINDOW_CLASS_ICON;
-
-	// Register main window class
-	if( RegisterClassEx( &wcMain ) )
+	
+	// Connect to internet
+	if( InternetConnect() )
 	{
-		// Successfully registered main window class
-		HWND hWndMain;
+		// Successfully connected to internet
+		WNDCLASSEX wcMain;
 
-		// Create main window
-		hWndMain = CreateWindowEx( MAIN_WINDOW_EXTENDED_STYLE, MAIN_WINDOW_CLASS_NAME, MAIN_WINDOW_TEXT, MAIN_WINDOW_STYLE, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL );
+		// Clear main window class structure
+		ZeroMemory( &wcMain, sizeof( wcMain ) );
 
-		// Ensure that main window was created
-		if( hWndMain )
+		// Initialise main window class structure
+		wcMain.cbSize			= sizeof( WNDCLASSEX );
+		wcMain.style			= MAIN_WINDOW_CLASS_STYLE;
+		wcMain.lpfnWndProc		= MainWindowProcedure;
+		wcMain.hInstance		= hInstance;
+		wcMain.hIcon			= MAIN_WINDOW_CLASS_ICON;
+		wcMain.hCursor			= MAIN_WINDOW_CLASS_CURSOR;
+		wcMain.hbrBackground	= MAIN_WINDOW_CLASS_BACKGROUND;
+		wcMain.lpszMenuName		= MAIN_WINDOW_CLASS_MENU_NAME;
+		wcMain.lpszClassName	= MAIN_WINDOW_CLASS_NAME;
+		wcMain.hIconSm			= MAIN_WINDOW_CLASS_ICON;
+
+		// Register main window class
+		if( RegisterClassEx( &wcMain ) )
 		{
-			// Successfully created main window
-			HMENU hMenuSystem;
+			// Successfully registered main window class
+			HWND hWndMain;
 
-			// Get system menu
-			hMenuSystem = GetSystemMenu( hWndMain, FALSE );
+			// Create main window
+			hWndMain = CreateWindowEx( MAIN_WINDOW_EXTENDED_STYLE, MAIN_WINDOW_CLASS_NAME, MAIN_WINDOW_TEXT, MAIN_WINDOW_STYLE, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL );
 
-			// Add separator to system menu
-			InsertMenu( hMenuSystem, SYSTEM_MENU_SEPARATOR_ITEM_POSITION, ( MF_BYPOSITION | MF_SEPARATOR ), 0, NULL );
-
-			// Add about item to system menu
-			InsertMenu( hMenuSystem, SYSTEM_MENU_ABOUT_ITEM_POSITION, MF_BYPOSITION, IDM_HELP_ABOUT, SYSTEM_MENU_ABOUT_ITEM_TEXT );
-
-			// Show main window
-			ShowWindow( hWndMain, nCmdShow );
-
-			// Update main window
-			UpdateWindow( hWndMain );
-
-			// Main message loop
-			while( GetMessage( &msg, NULL, 0, 0 ) > 0 )
+			// Ensure that main window was created
+			if( hWndMain )
 			{
-				// Translate message
-				TranslateMessage( &msg );
+				// Successfully created main window
+				HMENU hMenuSystem;
 
-				// Dispatch message
-				DispatchMessage( &msg );
+				// Get system menu
+				hMenuSystem = GetSystemMenu( hWndMain, FALSE );
 
-			}; // End of main message loop
+				// Add separator to system menu
+				InsertMenu( hMenuSystem, SYSTEM_MENU_SEPARATOR_ITEM_POSITION, ( MF_BYPOSITION | MF_SEPARATOR ), 0, NULL );
 
-		} // End of successfully created main window
+				// Add about item to system menu
+				InsertMenu( hMenuSystem, SYSTEM_MENU_ABOUT_ITEM_POSITION, MF_BYPOSITION, IDM_HELP_ABOUT, SYSTEM_MENU_ABOUT_ITEM_TEXT );
+
+				// Show main window
+				ShowWindow( hWndMain, nCmdShow );
+
+				// Update main window
+				UpdateWindow( hWndMain );
+
+				// Main message loop
+				while( GetMessage( &msg, NULL, 0, 0 ) > 0 )
+				{
+					// Translate message
+					TranslateMessage( &msg );
+
+					// Dispatch message
+					DispatchMessage( &msg );
+
+				}; // End of main message loop
+
+			} // End of successfully created main window
+			else
+			{
+				// Unable to create main window
+
+				// Display error message
+				MessageBox( NULL, UNABLE_TO_CREATE_MAIN_WINDOW_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
+
+			} // End of unable to create main window
+
+		} // End of successfully registered main window class
 		else
 		{
-			// Unable to create main window
+			// Unable to register main window class
 
 			// Display error message
-			MessageBox( NULL, UNABLE_TO_CREATE_MAIN_WINDOW_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
+			MessageBox( NULL, UNABLE_TO_REGISTER_MAIN_WINDOW_CLASS_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
 
-		} // End of unable to create main window
+		} // End of unable to register main window class
 
-	} // End of successfully registered main window class
+		// Close internet
+		InternetClose();
+
+	} // End of successfully connected to internet
 	else
 	{
-		// Unable to register main window class
+		// Unable to connect to internet
 
 		// Display error message
-		MessageBox( NULL, UNABLE_TO_REGISTER_MAIN_WINDOW_CLASS_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
+		MessageBox( NULL, INTERNET_UNABLE_TO_CONNECT_TO_INTERNET_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
 
-	} // End of unable to register main window class
+	} // End of unable to connect to internet
 
 	return msg.wParam;
 

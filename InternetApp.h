@@ -8,6 +8,8 @@
 #include "Common.h"
 #include "Resource.h"
 
+#include "Internet.h"
+
 #include "ButtonWindow.h"
 #include "EditWindow.h"
 #include "ListBoxWindow.h"
