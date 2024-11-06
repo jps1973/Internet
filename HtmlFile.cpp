@@ -92,11 +92,15 @@ int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttri
 	LPSTR lpStartOfTag;
 	LPSTR lpEndOfTag;
 	LPSTR lpEndOfTagName;
+	LPSTR lpStartOfAttribute;
+	LPSTR lpStartOfAttributeValue;
+	LPSTR lpEndOfAttributeValue;
 	DWORD dwTagLength;
 
 	// Allocate string memory
-	LPTSTR lpszTag		= new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
-	LPTSTR lpszTagName	= new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
+	LPTSTR lpszTag				= new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
+	LPTSTR lpszTagName			= new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
+	LPTSTR lpszAttributeValue	= new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
 
 	// Find start of first tag
 	lpStartOfTag = strchr( g_lpszFileText, HTML_FILE_START_OF_TAG_CHARACTER );
@@ -147,15 +151,51 @@ int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttri
 				{
 					// Tag has the required name
 
-					// Process item
-					if( ( *lpProcessFunction )( lpszTag ) )
+					// Find attribute in tag
+					lpStartOfAttribute = strstr( lpszTag, lpszRequiredAttributeName );
+
+					// Ensure that attribute was found in tag
+					if( lpStartOfAttribute )
 					{
-						// Successfully pocessed item
+						// Successfully found attribute in tag
 
-						// Update return value
-						nResult ++;
+						// Find start of atttribute value
+						lpStartOfAttributeValue = strpbrk( lpStartOfAttribute, HTML_FILE_EDGE_OF_ATTRIBUTE_VALUE_CHARACTERS );
 
-					} // End of successfully pocessed item
+						// Ensure that start of atttribute value was found
+						if( lpStartOfAttributeValue )
+						{
+							// Successfully found start of atttribute value
+
+							// Store attribute value
+							lstrcpy( lpszAttributeValue, ( lpStartOfAttributeValue + sizeof( char ) ) );
+
+							// Find end of attribute value
+							lpEndOfAttributeValue = strpbrk( lpszAttributeValue, HTML_FILE_EDGE_OF_ATTRIBUTE_VALUE_CHARACTERS );
+
+							// See if end of attribute value was found
+							if( lpEndOfAttributeValue )
+							{
+								// Successfully found end of attribute value
+
+								// Terminate attribute value
+								lpEndOfAttributeValue[ 0 ] = ( char )NULL;
+
+								// Process item
+								if( ( *lpProcessFunction )( lpszAttributeValue ) )
+								{
+									// Successfully processed item
+
+									// Update return value
+									nResult ++;
+
+								} // End of successfully processed item
+
+							} // End of successfully found end of attribute value
+
+						} // End of successfully found start of atttribute value
+
+					} // End of successfully found attribute in tag
 
 				} // End of tag has the required name
 
@@ -179,6 +219,7 @@ int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttri
 	// Free string memory
 	delete [] lpszTag;
 	delete [] lpszTagName;
+	delete [] lpszAttributeValue;
 
 	return nResult;
 
