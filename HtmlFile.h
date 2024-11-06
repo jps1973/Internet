@@ -13,6 +13,8 @@
 #define HTML_FILE_START_OF_TAG_CHARACTER										ASCII_LESS_THAN_CHARACTER
 #define HTML_FILE_END_OF_TAG_CHARACTER											ASCII_GREATER_THAN_CHARACTER
 
+#define HTML_FILE_ABSOLUTE_URL_IDENTIFIER										"://"
+
 #define HTML_FILE_END_OF_TAG_NAME_CHARACTERS									" >"
 #define HTML_FILE_EDGE_OF_ATTRIBUTE_VALUE_CHARACTERS							"\"'"
 
@@ -30,4 +32,4 @@ BOOL HtmlFileDisplay( HWND hWndParent, UINT uType = ( MB_OK | MB_ICONINFORMATION
 
 BOOL HtmlFileOpen( LPCTSTR lpszFileName );
 
-int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName, BOOL( *lpProcessFunction )( LPCTSTR lpszAttributeValue ) );
+int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName, LPCTSTR lpszParentUrl, BOOL( *lpProcessFunction )( LPCTSTR lpszAttributeValue ) );

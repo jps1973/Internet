@@ -85,7 +85,7 @@ BOOL HtmlFileOpen( LPCTSTR lpszFileName )
 
 } // End of function HtmlFileOpen
 
-int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName, BOOL( *lpProcessFunction )( LPCTSTR lpszAttributeValue ) )
+int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName, LPCTSTR lpszParentUrl, BOOL( *lpProcessFunction )( LPCTSTR lpszAttributeValue ) )
 {
 	int nResult = 0;
 
@@ -98,9 +98,10 @@ int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttri
 	DWORD dwTagLength;
 
 	// Allocate string memory
-	LPTSTR lpszTag				= new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
-	LPTSTR lpszTagName			= new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
-	LPTSTR lpszAttributeValue	= new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
+	LPTSTR lpszTag						= new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
+	LPTSTR lpszTagName					= new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
+	LPTSTR lpszRelativeAttributeValue	= new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
+	LPTSTR lpszAbsoluteAttributeValue	= new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
 
 	// Find start of first tag
 	lpStartOfTag = strchr( g_lpszFileText, HTML_FILE_START_OF_TAG_CHARACTER );
@@ -167,11 +168,11 @@ int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttri
 						{
 							// Successfully found start of atttribute value
 
-							// Store attribute value
-							lstrcpy( lpszAttributeValue, ( lpStartOfAttributeValue + sizeof( char ) ) );
+							// Store relative attribute value
+							lstrcpy( lpszRelativeAttributeValue, ( lpStartOfAttributeValue + sizeof( char ) ) );
 
-							// Find end of attribute value
-							lpEndOfAttributeValue = strpbrk( lpszAttributeValue, HTML_FILE_EDGE_OF_ATTRIBUTE_VALUE_CHARACTERS );
+							// Find end of relative attribute value
+							lpEndOfAttributeValue = strpbrk( lpszRelativeAttributeValue, HTML_FILE_EDGE_OF_ATTRIBUTE_VALUE_CHARACTERS );
 
 							// See if end of attribute value was found
 							if( lpEndOfAttributeValue )
@@ -180,9 +181,55 @@ int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttri
 
 								// Terminate attribute value
 								lpEndOfAttributeValue[ 0 ] = ( char )NULL;
+								
+								// See if attribute value is absolute
+								if( strstr( lpszRelativeAttributeValue, HTML_FILE_ABSOLUTE_URL_IDENTIFIER ) )
+								{
+									// Attribute value is absolute
+
+									// Copy attribute into absolute attribute
+									lstrcpy( lpszAbsoluteAttributeValue, lpszRelativeAttributeValue );
+
+								} // End of attribute value is absolute
+								else
+								{
+									// Attribute value is not absolute
+
+									// Copy parent url into absolute attribute
+									lstrcpy( lpszAbsoluteAttributeValue, lpszParentUrl );
+
+									// Ensure that absolute attribute value ends with a forward slash
+									if( lpszAbsoluteAttributeValue[ lstrlen( lpszAbsoluteAttributeValue ) - sizeof( char ) ] != ASCII_FORWARD_SLASH_CHARACTER )
+									{
+										// Absolute attribute value does not end with a forward slash
+
+										// Append a forward slash onto absolute attribute value
+										lstrcat( lpszAbsoluteAttributeValue, ASCII_FORWARD_SLASH_STRING );
+
+									} // End of absolute attribute value does not end with a forward slash
+									
+									// See if relative attribute value begins with a forward slash
+									if( lpszRelativeAttributeValue[ 0 ] == ASCII_FORWARD_SLASH_CHARACTER )
+									{
+										// Relative attribute value begins with a forward slash
+
+										// Append relative attribute (after forward slash) onto absolute attribute value
+										lstrcat( lpszAbsoluteAttributeValue, ( lpszRelativeAttributeValue + sizeof( char ) ) );
+
+									} // End of relative attribute value begins with a forward slash
+									else
+									{
+										// Relative attribute value does not begin with a forward slash
+
+										// Append relative attribute onto absolute attribute value
+										lstrcat( lpszAbsoluteAttributeValue, lpszRelativeAttributeValue );
+
+									} // End of relative attribute value begins does not begin a forward slash
+
+								} // End of attribute value is not absolute
 
 								// Process item
-								if( ( *lpProcessFunction )( lpszAttributeValue ) )
+								if( ( *lpProcessFunction )( lpszAbsoluteAttributeValue ) )
 								{
 									// Successfully processed item
 
@@ -219,7 +266,8 @@ int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttri
 	// Free string memory
 	delete [] lpszTag;
 	delete [] lpszTagName;
-	delete [] lpszAttributeValue;
+	delete [] lpszRelativeAttributeValue;
+	delete [] lpszAbsoluteAttributeValue;
 
 	return nResult;
 

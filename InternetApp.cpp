@@ -290,7 +290,7 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 								int nItemCount;
 
 								// Process tags in local file
-								nItemCount = HtmlFileProcessItems( HTML_FILE_ANCHOR_TAG_NAME, HTML_FILE_ANCHOR_TAG_ATTRIBUTE, &ProcessItemFunction );
+								nItemCount = HtmlFileProcessItems( HTML_FILE_ANCHOR_TAG_NAME, HTML_FILE_ANCHOR_TAG_ATTRIBUTE, lpszUrl, &ProcessItemFunction );
 
 								// Format status message
 								wsprintf( lpszStatusMessage, HTML_FILE_SUCCESSFULLY_PROCESSED_STATUS_MESSAGE_FORMAT_STRING, nItemCount, lpszLocalFilePath );
