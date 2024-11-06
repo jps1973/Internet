@@ -2,6 +2,15 @@
 
 #include "InternetApp.h"
 
+BOOL ProcessItemFunction( LPCTSTR lpszAttributeValue )
+{
+	// Add attribute to list box window
+	ListBoxWindowAddString( lpszAttributeValue );
+
+	return TRUE;
+
+} // End of function ProcessItemFunction
+
 BOOL DownloadFile( LPCTSTR lpszUrl, LPTSTR lpszLocalFilePath )
 {
 	BOOL bResult = FALSE;
@@ -278,12 +287,13 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 							if( HtmlFileOpen( lpszLocalFilePath ) )
 							{
 								// Successfully opened local file
+								int nItemCount;
 
-								// Display local file
-								HtmlFileDisplay( hWndMain );
+								// Process tags in local file
+								nItemCount = HtmlFileProcessItems( HTML_FILE_ANCHOR_TAG_NAME, HTML_FILE_ANCHOR_TAG_ATTRIBUTE, &ProcessItemFunction );
 
 								// Format status message
-								wsprintf( lpszStatusMessage, HTML_FILE_SUCCESSFULLY_OPENED_STATUS_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
+								wsprintf( lpszStatusMessage, HTML_FILE_SUCCESSFULLY_PROCESSED_STATUS_MESSAGE_FORMAT_STRING, nItemCount, lpszLocalFilePath );
 
 							} // End of successfully opened local file
 							else

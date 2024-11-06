@@ -84,3 +84,76 @@ BOOL HtmlFileOpen( LPCTSTR lpszFileName )
 	return bResult;
 
 } // End of function HtmlFileOpen
+
+int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName, BOOL( *lpProcessFunction )( LPCTSTR lpszAttributeValue ) )
+{
+	int nResult = 0;
+
+	LPSTR lpStartOfTag;
+	LPSTR lpEndOfTag;
+	DWORD dwTagLength;
+
+	// Allocate string memory
+	LPTSTR lpszTag = new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
+
+	// Find start of first tag
+	lpStartOfTag = strchr( g_lpszFileText, HTML_FILE_START_OF_TAG_CHARACTER );
+
+	// Loop through all tags
+	while( lpStartOfTag )
+	{
+		// Find end of tag
+		lpEndOfTag = strchr( lpStartOfTag, HTML_FILE_END_OF_TAG_CHARACTER );
+
+		// Ensure that end of tag was found
+		if( lpEndOfTag )
+		{
+			// Successfully found end of tag
+
+			// Calculate tag length
+			dwTagLength = ( ( lpEndOfTag - lpStartOfTag ) + sizeof( char ) );
+
+			// Ensure that lag length is valid
+			if( dwTagLength > HTML_FILE_MAXIMUM_TAG_LENGTH )
+			{
+				// Tag length is too big
+
+				// Limit tag length to maximum value
+				dwTagLength = HTML_FILE_MAXIMUM_TAG_LENGTH;
+
+			} // End of tag length is too big
+
+			// Store tag
+			lstrcpyn( lpszTag, lpStartOfTag, ( dwTagLength + sizeof( char ) ) );
+
+			// Process item
+			if( ( *lpProcessFunction )( lpszTag ) )
+			{
+				// Successfully pocessed item
+
+				// Update return value
+				nResult ++;
+
+			} // End of successfully pocessed item
+
+			// Find start of next tag
+			lpStartOfTag = strchr( lpEndOfTag, HTML_FILE_START_OF_TAG_CHARACTER );
+
+		} // End of successfully found end of tag
+		else
+		{
+			// Unable to find end of tag
+
+			// Force exit from loop
+			lpStartOfTag = NULL;
+
+		} // End of unable to find end of tag
+
+	}; // End of loop through all tags
+
+	// Free string memory
+	delete [] lpszTag;
+
+	return nResult;
+
+} // End of function HtmlFileProcessItems
