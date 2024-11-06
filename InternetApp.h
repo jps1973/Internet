@@ -8,6 +8,7 @@
 #include "Common.h"
 #include "Resource.h"
 
+#include "HtmlFile.h"
 #include "Internet.h"
 
 #include "ButtonWindow.h"

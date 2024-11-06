@@ -2,13 +2,12 @@
 
 #include "InternetApp.h"
 
-BOOL DownloadFile( LPCTSTR lpszUrl )
+BOOL DownloadFile( LPCTSTR lpszUrl, LPTSTR lpszLocalFilePath )
 {
 	BOOL bResult = FALSE;
 
 	// Allocate string memory
-	LPTSTR lpszLocalFilePath	= new char[ STRING_LENGTH ];
-	LPTSTR lpszStatusMessage	= new char[ STRING_LENGTH ];
+	LPTSTR lpszStatusMessage = new char[ STRING_LENGTH ];
 
 	// Format status message
 	wsprintf( lpszStatusMessage, INTERNET_DOWNLOADING_STATUS_MESSAGE_FORMAT_STRING, lpszUrl );
@@ -41,7 +40,6 @@ BOOL DownloadFile( LPCTSTR lpszUrl )
 	StatusBarWindowSetText( lpszStatusMessage );
 
 	// Free string memory
-	delete [] lpszLocalFilePath;
 	delete [] lpszStatusMessage;
 
 	return bResult;
@@ -259,11 +257,51 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMessage, WPARAM wPara
 					{
 						// Successfully got url from edit window
 
+						// Allocate string memory
+						LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH ];
+
 						// Download file
-						if( DownloadFile( lpszUrl ) )
+						if( DownloadFile( lpszUrl, lpszLocalFilePath ) )
 						{
 							// Successfully downloaded file
+
+							// Allocate string memory
+							LPTSTR lpszStatusMessage = new char[ STRING_LENGTH ];
+
+							// Format status message
+							wsprintf( lpszStatusMessage, HTML_FILE_OPENING_STATUS_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
+
+							// Show status message on status bar window
+							StatusBarWindowSetText( lpszStatusMessage );
+
+							// Open local file
+							if( HtmlFileOpen( lpszLocalFilePath ) )
+							{
+								// Successfully opened local file
+
+								// Display local file
+								HtmlFileDisplay( hWndMain );
+
+								// Format status message
+								wsprintf( lpszStatusMessage, HTML_FILE_SUCCESSFULLY_OPENED_STATUS_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
+
+							} // End of successfully opened local file
+							else
+							{
+								// Unable to open local file
+
+								// Format status message
+								wsprintf( lpszStatusMessage, HTML_FILE_UNABLE_TO_OPEN_STATUS_MESSAGE_FORMAT_STRING, lpszLocalFilePath );
+
+							} // End of unable to open local file
+
+							// Show status message on status bar window
+							StatusBarWindowSetText( lpszStatusMessage );
+
 						} // End of successfully downloaded file
+
+						// Free string memory
+						delete [] lpszLocalFilePath;
 
 					} // End of successfully got url from edit window
 
