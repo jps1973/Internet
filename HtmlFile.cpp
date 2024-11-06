@@ -91,10 +91,12 @@ int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttri
 
 	LPSTR lpStartOfTag;
 	LPSTR lpEndOfTag;
+	LPSTR lpEndOfTagName;
 	DWORD dwTagLength;
 
 	// Allocate string memory
-	LPTSTR lpszTag = new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
+	LPTSTR lpszTag		= new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
+	LPTSTR lpszTagName	= new char[ HTML_FILE_MAXIMUM_TAG_LENGTH + sizeof( char ) ];
 
 	// Find start of first tag
 	lpStartOfTag = strchr( g_lpszFileText, HTML_FILE_START_OF_TAG_CHARACTER );
@@ -126,15 +128,38 @@ int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttri
 			// Store tag
 			lstrcpyn( lpszTag, lpStartOfTag, ( dwTagLength + sizeof( char ) ) );
 
-			// Process item
-			if( ( *lpProcessFunction )( lpszTag ) )
+			// Set start of tag name
+			lstrcpy( lpszTagName, ( lpszTag + sizeof( char ) ) );
+
+			// Find end of tag name
+			lpEndOfTagName = strpbrk( lpszTagName, HTML_FILE_END_OF_TAG_NAME_CHARACTERS );
+
+			// Ensure that end of tag name was found
+			if( lpEndOfTagName )
 			{
-				// Successfully pocessed item
+				// Successfully found end of tag name
 
-				// Update return value
-				nResult ++;
+				// Terminate tag name
+				lpEndOfTagName[ 0 ] = ( char )NULL;
 
-			} // End of successfully pocessed item
+				// See if tag has the required name
+				if( lstrcmpi( lpszTagName, lpszRequiredTagName ) == 0 )
+				{
+					// Tag has the required name
+
+					// Process item
+					if( ( *lpProcessFunction )( lpszTag ) )
+					{
+						// Successfully pocessed item
+
+						// Update return value
+						nResult ++;
+
+					} // End of successfully pocessed item
+
+				} // End of tag has the required name
+
+			} // End of successfully found end of tag name
 
 			// Find start of next tag
 			lpStartOfTag = strchr( lpEndOfTag, HTML_FILE_START_OF_TAG_CHARACTER );
@@ -153,6 +178,7 @@ int HtmlFileProcessItems( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttri
 
 	// Free string memory
 	delete [] lpszTag;
+	delete [] lpszTagName;
 
 	return nResult;
 
