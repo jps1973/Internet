@@ -32,65 +32,19 @@ BOOL ButtonWindowCreate( HWND hWndParent, HINSTANCE hInstance )
 
 } // End of function ButtonWindowCreate
 
+BOOL ButtonWindowEnable( BOOL bState )
+{
+	// Enable button window
+	return EnableWindow( g_hWndButton, bState );
+
+} // End of function ButtonWindowEnable
+
 BOOL ButtonWindowGetRect( LPRECT lpRect )
 {
 	// Get button window rect
 	return GetWindowRect( g_hWndButton, lpRect );
 
 } // End of function ButtonWindowGetRect
-
-BOOL ButtonWindowHandleCommandMessage( WPARAM wParam, LPARAM, BOOL( *lpStatusFunction )( LPCTSTR lpszItemText ) )
-{
-	BOOL bResult = FALSE;
-
-	// Select button window notification code
-	switch( HIWORD( wParam ) )
-	{
-		default:
-		{
-			// Default notification code
-
-			// No need to do anything here, just continue with default result
-
-			// Break out of switch
-			break;
-
-		} // End of default notification code
-
-	}; // End of selection for button window notification code
-
-	return bResult;
-
-} // End of function ButtonWindowHandleCommandMessage
-
-BOOL ButtonWindowHandleNotifyMessage( WPARAM wParam, LPARAM lParam, BOOL( *lpStatusFunction )( LPCTSTR lpszItemText ) )
-{
-	BOOL bResult = FALSE;
-
-	LPNMHDR lpNmhdr;
-
-	// Get notify message handler
-	lpNmhdr = ( ( LPNMHDR )lParam );
-
-	// Select button window notification code
-	switch( lpNmhdr->code )
-	{
-		default:
-		{
-			// Default notification code
-
-			// No need to do anything here, just continue with default result
-
-			// Break out of switch
-			break;
-
-		} // End of default notification code
-
-	}; // End of selection for button window notification code
-
-	return bResult;
-
-} // End of function ButtonWindowHandleNotifyMessage
 
 BOOL ButtonWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint )
 {

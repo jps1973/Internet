@@ -46,13 +46,31 @@ int EditWindowGetText( LPTSTR lpszText, DWORD dwMaxTextLength )
 
 } // End of function EditWindowGetText
 
-BOOL EditWindowHandleCommandMessage( WPARAM wParam, LPARAM, BOOL( *lpStatusFunction )( LPCTSTR lpszItemText ) )
+BOOL EditWindowHandleCommandMessage( WPARAM wParam, LPARAM, BOOL( *lpChangeFunction )( DWORD dwTextLength ) )
 {
 	BOOL bResult = FALSE;
 
 	// Select edit window notification code
 	switch( HIWORD( wParam ) )
 	{
+		case EN_CHANGE:
+		{
+			// Edit window change notification code
+			DWORD dwTextLength;
+
+			// Get text length
+			dwTextLength = SendMessage( g_hWndEdit, WM_GETTEXTLENGTH, ( WPARAM )NULL, ( LPARAM )NULL );
+
+			// Call change function
+			( *lpChangeFunction )( dwTextLength );
+
+			// Update return value
+			bResult = TRUE;
+
+			// Break out of switch
+			break;
+
+		} // End of edit window change notification code
 		default:
 		{
 			// Default notification code
@@ -69,35 +87,6 @@ BOOL EditWindowHandleCommandMessage( WPARAM wParam, LPARAM, BOOL( *lpStatusFunct
 	return bResult;
 
 } // End of function EditWindowHandleCommandMessage
-
-BOOL EditWindowHandleNotifyMessage( WPARAM wParam, LPARAM lParam, BOOL( *lpStatusFunction )( LPCTSTR lpszItemText ) )
-{
-	BOOL bResult = FALSE;
-
-	LPNMHDR lpNmhdr;
-
-	// Get notify message handler
-	lpNmhdr = ( ( LPNMHDR )lParam );
-
-	// Select edit window notification code
-	switch( lpNmhdr->code )
-	{
-		default:
-		{
-			// Default notification code
-
-			// No need to do anything here, just continue with default result
-
-			// Break out of switch
-			break;
-
-		} // End of default notification code
-
-	}; // End of selection for edit window notification code
-
-	return bResult;
-
-} // End of function EditWindowHandleNotifyMessage
 
 BOOL EditWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint )
 {

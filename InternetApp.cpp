@@ -2,6 +2,32 @@
 
 #include "InternetApp.h"
 
+BOOL EditWindowChangeFunction( DWORD dwTextLength )
+{
+	BOOL bResult = FALSE;
+
+	// See if edit window contains text
+	if( dwTextLength )
+	{
+		// Edit window contains text
+
+		// Enable button window
+		ButtonWindowEnable( TRUE );
+
+	} // End of edit window contains text
+	else
+	{
+		// Edit window is empty
+
+		// Disable button window
+		ButtonWindowEnable( FALSE );
+
+	} // End of edit window is empty
+
+	return bResult;
+
+} // End of function EditWindowChangeFunction
+
 int ShowAboutMessage( HWND hWndParent )
 {
 	int nResult = 0;
@@ -266,7 +292,22 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 				{
 					// Default command
 
-					// See if command message is from list box window
+					// See if command message is from edit window
+					if( IsEditWindow( ( HWND )lParam ) )
+					{
+						// Command message is from edit window
+
+						// Handle command message from edit window
+						if( !( EditWindowHandleCommandMessage( wParam, lParam, &EditWindowChangeFunction ) ) )
+						{
+							// Command message was not handled from edit window
+
+							// Call default procedure
+							lr = DefWindowProc( hWndMain, uMsg, wParam, lParam );
+
+						} // End of command message was not handled from edit window
+
+					} // End of command message is from edit window
 					if( IsListBoxWindow( ( HWND )lParam ) )
 					{
 						// Command message is from list box window
@@ -341,36 +382,9 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 		case WM_NOTIFY:
 		{
 			// A notify message
-			LPNMHDR lpNmHdr;
 
-			// Get notify message handler
-			lpNmHdr = ( LPNMHDR )lParam;
-
-			// See if notify message is from list box window
-			if( IsListBoxWindow( lpNmHdr->hwndFrom ) )
-			{
-				// Notify message is from list box window
-
-				// Handle notify message from list box window
-				if( !( ListBoxWindowHandleNotifyMessage( wParam, lParam, &StatusBarWindowSetText ) ) )
-				{
-					// Notify message was not handled from list box window
-
-					// Call default procedure
-					lr = DefWindowProc( hWndMain, uMsg, wParam, lParam );
-
-				} // End of notify message was not handled from list box window
-
-			} // End of notify message is from list box window
-			else
-			{
-				// Notify message is not from list box window
-
-				// Call default procedure
-				lr = DefWindowProc( hWndMain, uMsg, wParam, lParam );
-
-			} // End of notify message is not from list box window
-
+			// Call default procedure
+			lr = DefWindowProc( hWndMain, uMsg, wParam, lParam );
 
 			// Break out of switch
 			break;

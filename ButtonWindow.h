@@ -23,11 +23,9 @@ BOOL IsButtonWindow( HWND hWnd );
 
 BOOL ButtonWindowCreate( HWND hWndParent, HINSTANCE hInstance );
 
+BOOL ButtonWindowEnable( BOOL bState );
+
 BOOL ButtonWindowGetRect( LPRECT lpRect );
-
-BOOL ButtonWindowHandleCommandMessage( WPARAM wParam, LPARAM lParam, BOOL( *lpStatusFunction )( LPCTSTR lpszItemText ) );
-
-BOOL ButtonWindowHandleNotifyMessage( WPARAM wParam, LPARAM lParam, BOOL( *lpStatusFunction )( LPCTSTR lpszItemText ) );
 
 BOOL ButtonWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint = TRUE );
 

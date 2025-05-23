@@ -22,9 +22,7 @@ BOOL EditWindowGetRect( LPRECT lpRect );
 
 int EditWindowGetText( LPTSTR lpszText, DWORD dwMaxTextLength = STRING_LENGTH );
 
-BOOL EditWindowHandleCommandMessage( WPARAM wParam, LPARAM lParam, BOOL( *lpStatusFunction )( LPCTSTR lpszItemText ) );
-
-BOOL EditWindowHandleNotifyMessage( WPARAM wParam, LPARAM lParam, BOOL( *lpStatusFunction )( LPCTSTR lpszItemText ) );
+BOOL EditWindowHandleCommandMessage( WPARAM wParam, LPARAM lParam, BOOL( *lpChangeFunction )( DWORD dwTextLength ) );
 
 BOOL EditWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint = TRUE );
 

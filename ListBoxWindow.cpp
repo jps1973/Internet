@@ -126,35 +126,6 @@ BOOL ListBoxWindowHandleCommandMessage( WPARAM wParam, LPARAM, BOOL( *lpStatusFu
 
 } // End of function ListBoxWindowHandleCommandMessage
 
-BOOL ListBoxWindowHandleNotifyMessage( WPARAM, LPARAM lParam, BOOL( *lpStatusFunction )( LPCTSTR lpszItemText ) )
-{
-	BOOL bResult = FALSE;
-
-	LPNMHDR lpNmhdr;
-
-	// Get notify message handler
-	lpNmhdr = ( ( LPNMHDR )lParam );
-
-	// Select list box window notification code
-	switch( lpNmhdr->code )
-	{
-		default:
-		{
-			// Default notification code
-
-			// No need to do anything here, just continue with default result
-
-			// Break out of switch
-			break;
-
-		} // End of default notification code
-
-	}; // End of selection for list box window notification code
-
-	return bResult;
-
-} // End of function ListBoxWindowHandleNotifyMessage
-
 BOOL ListBoxWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint )
 {
 	// Move list box window
