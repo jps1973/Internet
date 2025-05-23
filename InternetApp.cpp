@@ -1,6 +1,6 @@
-// Template.cpp
+// InternetApp.cpp
 
-#include "Template.h"
+#include "InternetApp.h"
 
 int ShowAboutMessage( HWND hWndParent )
 {
@@ -46,25 +46,48 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 			// Get font
 			hFont = ( HFONT )GetStockObject( DEFAULT_GUI_FONT );
 
-			// Create list box window
-			if( ListBoxWindowCreate( hWndMain, hInstance ) )
+			// Create edit window
+			if( EditWindowCreate( hWndMain, hInstance ) )
 			{
-				// Successfully created list box window
+				// Successfully created edit window
 
-				// Set list box window font
-				ListBoxWindowSetFont( hFont );
+				// Set edit window font
+				EditWindowSetFont( hFont );
 
-				// Create status bar window
-				if( StatusBarWindowCreate( hWndMain, hInstance ) )
+			// Create button window
+				if( ButtonWindowCreate( hWndMain, hInstance ) )
 				{
-					// Successfully created status bar window
+					// Successfully created button window
 
-					// Set status bar window font
-					StatusBarWindowSetFont( hFont );
+					// Set button window font
+					ButtonWindowSetFont( hFont );
 
-				} // End of successfully created status bar window
+					// Create list box window
+					if( ListBoxWindowCreate( hWndMain, hInstance ) )
+					{
+						// Successfully created list box window
 
-			} // End of successfully created list box window
+						// Set list box window font
+						ListBoxWindowSetFont( hFont );
+
+						// Create status bar window
+						if( StatusBarWindowCreate( hWndMain, hInstance ) )
+						{
+							// Successfully created status bar window
+
+							// Set status bar window font
+							StatusBarWindowSetFont( hFont );
+
+							// Select edit window text
+							EditWindowSelect();
+
+						} // End of successfully created status bar window
+
+					} // End of successfully created list box window
+
+				} // End of successfully created button window
+
+			} // End of successfully created edit window
 
 			// Break out of switch
 			break;
@@ -78,6 +101,9 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 			RECT rcStatus;
 			int nStatusWindowHeight;
 			int nListBoxWindowHeight;
+			int nListBoxWindowTop;
+			int nEditWindowWidth;
+			int nButtonWindowLeft;
 
 			// Store client width and height
 			nClientWidth	= ( int )LOWORD( lParam );
@@ -91,10 +117,17 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 
 			// Calculate window sizes
 			nStatusWindowHeight		= ( rcStatus.bottom - rcStatus.top );
-			nListBoxWindowHeight	= ( nClientHeight - nStatusWindowHeight );
+			nListBoxWindowHeight	= ( nClientHeight - ( nStatusWindowHeight + BUTTON_WINDOW_HEIGHT ) + WINDOW_BORDER_HEIGHT );
+			nEditWindowWidth		= ( ( nClientWidth - BUTTON_WINDOW_WIDTH ) + WINDOW_BORDER_WIDTH );
 
-			// Move list box window
-			ListBoxWindowMove( 0, 0, nClientWidth, nListBoxWindowHeight, TRUE );
+			// Calculate window positions
+			nListBoxWindowTop		= ( BUTTON_WINDOW_HEIGHT - WINDOW_BORDER_HEIGHT );
+			nButtonWindowLeft		= ( nEditWindowWidth - WINDOW_BORDER_WIDTH );
+
+			// Move control windows
+			ListBoxWindowMove( 0, nListBoxWindowTop, nClientWidth, nListBoxWindowHeight, TRUE );
+			EditWindowMove( 0, 0, nEditWindowWidth, BUTTON_WINDOW_HEIGHT, TRUE );
+			ButtonWindowMove( nButtonWindowLeft, 0, BUTTON_WINDOW_WIDTH, BUTTON_WINDOW_HEIGHT, TRUE );
 
 			// Break out of switch
 			break;
@@ -104,8 +137,8 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 		{
 			// An activate message
 
-			// Focus on list box window
-			ListBoxWindowSetFocus();
+			// Focus on edit window
+			EditWindowSetFocus();
 
 			// Break out of switch
 			break;
@@ -183,6 +216,30 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 			// Select command
 			switch( LOWORD( wParam ) )
 			{
+				case BUTTON_WINDOW_ID:
+				{
+					// A button window command
+
+					// Allocate string memory
+					LPTSTR lpszUrl = new char[ STRING_LENGTH + sizeof( char ) ];
+
+					// Get url from edit window
+					if( EditWindowGetText( lpszUrl, STRING_LENGTH ) )
+					{
+						// Successfully got url from edit window
+
+						// Display url
+						MessageBox( hWndMain, lpszUrl, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+
+					} // End of successfully got url from edit window
+
+					// Free string memory
+					delete [] lpszUrl;
+
+					// Break out of switch
+					break;
+
+				} // End of a button window command
 				case IDM_FILE_EXIT:
 				{
 					// A file exit command
