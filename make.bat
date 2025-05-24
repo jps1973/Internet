@@ -8,6 +8,8 @@ g++ -mwindows -m64 -static -Wall -Wextra ^
  ^
  InternetApp.cpp ^
  ^
+ Internet.cpp ^
+ ^
  ButtonWindow.cpp ^
  EditWindow.cpp ^
  ListBoxWindow.cpp ^
@@ -15,4 +17,4 @@ g++ -mwindows -m64 -static -Wall -Wextra ^
  ^
  Resource.o ^
  ^
- -o InternetApp.exe
+ -o InternetApp.exe -lwininet
