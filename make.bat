@@ -8,6 +8,7 @@ g++ -mwindows -m64 -static -Wall -Wextra ^
  ^
  InternetApp.cpp ^
  ^
+ HtmlFile.cpp ^
  Internet.cpp ^
  ^
  ButtonWindow.cpp ^

@@ -262,8 +262,8 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 						{
 							// Successfully downloaded file
 
-							// Display url
-							MessageBox( hWndMain, lpszLocalFilePath, lpszUrl, ( MB_OK | MB_ICONINFORMATION ) );
+							// Load html file
+							HtmlFileLoad( lpszLocalFilePath );
 
 						} // End of successfully downloaded file
 
