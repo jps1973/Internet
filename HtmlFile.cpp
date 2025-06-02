@@ -2,6 +2,23 @@
 
 #include "HtmlFile.h"
 
+// Global variables
+LPTSTR g_lpszFileText;
+
+int HtmlFileDisplayText( LPCTSTR lpszTitle, HWND hWndParent )
+{
+	// Display file text
+	return MessageBox( hWndParent, g_lpszFileText, lpszTitle, ( MB_OK | MB_ICONINFORMATION ) );
+
+} // End of function HtmlFileDisplayText
+
+void HtmlFileFreeMemory()
+{
+	// Free string memory
+	delete [] g_lpszFileText;
+
+} // End of function HtmlFileFreeMemory
+
 BOOL HtmlFileLoad( LPCTSTR lpszFileName )
 {
 	BOOL bResult = FALSE;
@@ -26,26 +43,28 @@ BOOL HtmlFileLoad( LPCTSTR lpszFileName )
 			// Successfully got file size
 
 			// Allocate string memory
-			LPSTR lpszFileText = new char[ dwFileSize + sizeof( char ) ];
+			g_lpszFileText = new char[ dwFileSize + sizeof( char ) ];
 
 			// Read file text
-			if( ReadFile( hFile, lpszFileText, dwFileSize, NULL, NULL ) )
+			if( ReadFile( hFile, g_lpszFileText, dwFileSize, NULL, NULL ) )
 			{
 				// Successfully read file text
 
 				// Terminate file text
-				lpszFileText[ dwFileSize ] = ( char )NULL;
-
-				// Display file text
-				MessageBox( NULL, lpszFileText, lpszFileName, MB_OK );
+				g_lpszFileText[ dwFileSize ] = ( char )NULL;
 
 				// Update return value
 				bResult = TRUE;
 
 			} // End of successfully read file text
+			else
+			{
+				// Unable to read file text
 
-			// Free string memory
-			delete [] lpszFileText;
+				// Free string memory
+				delete [] g_lpszFileText;
+
+			} // End of unable to read file text
 
 		} // End of successfully got file size
 
@@ -57,3 +76,79 @@ BOOL HtmlFileLoad( LPCTSTR lpszFileName )
 	return bResult;
 
 } // End of function HtmlFileLoad
+
+int HtmlFileProcessTags( int( *lpTagFunction )( LPCTSTR lpszTag ) )
+{
+	int nResult = 0;
+
+	LPTSTR lpszStartOfTag;
+	LPTSTR lpszEndOfTag;
+	DWORD dwTagLength;
+	DWORD dwMaximumTagLength = STRING_LENGTH;
+
+	// Allocate string memory
+	LPTSTR lpszTag = new char[ dwMaximumTagLength + sizeof( char ) ];
+
+	// Find start of first tag
+	lpszStartOfTag = strchr( g_lpszFileText, HTML_FILE_START_OF_TAG_CHARACTER );
+
+	// Loop through all tags
+	while( lpszStartOfTag )
+	{
+		// Find end of tag
+		lpszEndOfTag = strchr( lpszStartOfTag, HTML_FILE_END_OF_TAG_CHARACTER );
+
+		// Ensure that end of tag was found
+		if( lpszEndOfTag )
+		{
+			// Successfully found end of tag
+
+			// Calculate tag length
+			dwTagLength = ( ( lpszEndOfTag - lpszStartOfTag ) + ( sizeof( char ) + sizeof( char ) ) );
+
+			// Ensure that tag length is not greater than maximum
+			if( dwTagLength > dwMaximumTagLength )
+			{
+				// Tag length is greater than maximum
+
+				// Free string memory
+				delete [] lpszTag;
+
+				// Update maximum tag length
+				dwMaximumTagLength = dwTagLength;
+
+				// Re-allocate string memory
+				lpszTag = new char[ dwMaximumTagLength + sizeof( char ) ];
+
+			} // End of tag length is greater than maximum
+
+			// Store tag
+			lstrcpyn( lpszTag, lpszStartOfTag, dwTagLength );
+
+			// Call tag function
+			( *lpTagFunction )( lpszTag );
+
+			// Update return value
+			nResult ++;
+
+			// Find start of next tag
+			lpszStartOfTag = strchr( lpszEndOfTag, HTML_FILE_START_OF_TAG_CHARACTER );
+
+		} // End of successfully found end of tag
+		else
+		{
+			// Unable to find end of tag
+
+			// Force exit from loop
+			lpszStartOfTag = NULL;
+
+		} // End of unable to find end of tag
+
+	}; // End of loop through all tags
+
+	// Free string memory
+	delete [] lpszTag;
+
+	return nResult;
+
+} // End of function HtmlFileProcessTags

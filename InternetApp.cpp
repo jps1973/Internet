@@ -2,6 +2,13 @@
 
 #include "InternetApp.h"
 
+int TagFunction( LPCTSTR lpszTag )
+{
+	// Add tag to list box window
+	return ListBoxWindowAddString( lpszTag );
+
+} // End of function TagFunction
+
 BOOL EditWindowChangeFunction( DWORD dwTextLength )
 {
 	BOOL bResult = FALSE;
@@ -263,7 +270,30 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 							// Successfully downloaded file
 
 							// Load html file
-							HtmlFileLoad( lpszLocalFilePath );
+							if( HtmlFileLoad( lpszLocalFilePath ) )
+							{
+								// Successfully loaded html file
+								int nTagCount;
+
+								// Allocate string memory
+								LPTSTR lpszStatusMessage = new char[ STRING_LENGTH + sizeof( char ) ];
+
+								// Process tags
+								nTagCount = HtmlFileProcessTags( &TagFunction );
+
+								// Format status message
+								wsprintf( lpszStatusMessage, HTML_FILE_PROCESS_TAGS_STATUS_MESSAGE_FORMAT_STRING, lpszLocalFilePath, nTagCount );
+
+								// Show status message on status bar window
+								StatusBarWindowSetText( lpszStatusMessage );
+
+								// Free memory
+								HtmlFileFreeMemory();
+
+								// Free string memory
+								delete [] lpszStatusMessage;
+
+							} // End of successfully loaded html file
 
 						} // End of successfully downloaded file
 
