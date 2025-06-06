@@ -18,11 +18,13 @@ BOOL IsListBoxWindow( HWND hWnd );
 
 int ListBoxWindowAddString( LPCTSTR lpszString );
 
+int ListBoxWindowAddStringEx( LPCTSTR lpszString );
+
 BOOL ListBoxWindowCreate( HWND hWndParent, HINSTANCE hInstance );
 
 BOOL ListBoxWindowGetRect( LPRECT lpRect );
 
-BOOL ListBoxWindowHandleCommandMessage( WPARAM wParam, LPARAM lParam, BOOL( *lpStatusFunction )( LPCTSTR lpszItemText ) );
+BOOL ListBoxWindowHandleCommandMessage( WPARAM wParam, LPARAM lParam, BOOL( *lpDoubleClickFunction )( LPCTSTR lpszItemText ), BOOL( *lpStatusFunction )( LPCTSTR lpszItemText ) );
 
 BOOL ListBoxWindowMove( int nX, int nY, int nWidth, int nHeight, BOOL bRepaint = TRUE );
 

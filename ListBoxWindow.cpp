@@ -19,6 +19,27 @@ int ListBoxWindowAddString( LPCTSTR lpszString )
 
 } // End of function ListBoxWindowAddString
 
+int ListBoxWindowAddStringEx( LPCTSTR lpszString )
+{
+	int nResult;
+
+	// Add string to list box window
+	nResult = SendMessage( g_hWndListBox, LB_ADDSTRING, ( WPARAM )NULL, ( LPARAM )lpszString );
+
+	// Ensure that string was added to list box window
+	if( ( nResult != LB_ERR ) && ( nResult != LB_ERRSPACE ) )
+	{
+		// Successfully added string to list box window
+
+		// Update list box window
+		UpdateWindow( g_hWndListBox );
+
+	} // End of successfully added string to list box window
+
+	return nResult;
+
+} // End of function ListBoxWindowAddStringEx
+
 BOOL ListBoxWindowCreate( HWND hWndParent, HINSTANCE hInstance )
 {
 	BOOL bResult = FALSE;
@@ -46,7 +67,7 @@ BOOL ListBoxWindowGetRect( LPRECT lpRect )
 
 } // End of function ListBoxWindowGetRect
 
-BOOL ListBoxWindowHandleCommandMessage( WPARAM wParam, LPARAM, BOOL( *lpStatusFunction )( LPCTSTR lpszItemText ) )
+BOOL ListBoxWindowHandleCommandMessage( WPARAM wParam, LPARAM, BOOL( *lpDoubleClickFunction )( LPCTSTR lpszItemText ), BOOL( *lpStatusFunction )( LPCTSTR lpszItemText ) )
 {
 	BOOL bResult = FALSE;
 
@@ -69,8 +90,8 @@ BOOL ListBoxWindowHandleCommandMessage( WPARAM wParam, LPARAM, BOOL( *lpStatusFu
 			{
 				// Successfully got selected item text
 
-				// Display selected item text
-				MessageBox( NULL, lpszSelected, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+				// Call double click function
+				( *lpDoubleClickFunction )( lpszSelected );
 
 			} // End of successfully got selected item text
 

@@ -19,6 +19,67 @@ void HtmlFileFreeMemory()
 
 } // End of function HtmlFileFreeMemory
 
+BOOL HtmlFileGetTagName( LPCTSTR lpszTag, LPTSTR lpszTagName )
+{
+	BOOL bResult = FALSE;
+
+	int nEndOfTagName;
+
+	// Find end of tag name
+	nEndOfTagName = strcspn( lpszTag, HTML_FILE_END_OF_TAG_NAME_CHARACTERS );
+
+	// Ensure that end of tag name was found
+	if( nEndOfTagName )
+	{
+		// Successfully found end of tag name
+
+		// <script>
+		// 01234567
+		//        |
+
+		// Store tag name
+		strncpy( lpszTagName, ( lpszTag + sizeof( HTML_FILE_START_OF_TAG_CHARACTER ) ), ( nEndOfTagName - sizeof( HTML_FILE_START_OF_TAG_CHARACTER ) ) );
+
+		// Terminate tag name
+		lpszTagName[ nEndOfTagName - sizeof( HTML_FILE_START_OF_TAG_CHARACTER ) ] = ( char )NULL;
+
+		// Update return value
+		bResult = TRUE;
+
+	} // End of successfully found end of tag name
+
+	return bResult;
+
+} // End of function HtmlFileLoad
+
+BOOL HtmlFileIsTagName( LPCTSTR lpszTag, LPCTSTR lpszRequiredTagName )
+{
+	BOOL bResult = FALSE;
+
+	// Allocate string memory
+	LPTSTR lpszTagName = new char[ STRING_LENGTH + sizeof( char ) ];
+
+	// Get tag name
+	if( HtmlFileGetTagName( lpszTag, lpszTagName ) )
+	{
+		// Successfully got tag name
+
+		// See if tag has the required name
+		if( lstrcmpi( lpszTagName, lpszRequiredTagName ) == 0 )
+		{
+			// Tag has the required name
+
+			// Update return value
+			bResult = TRUE;
+
+		} // End of tag has the required name
+
+	} // End of successfully got tag name
+
+	return bResult;
+
+} // End of function HtmlFileIsTagName
+
 BOOL HtmlFileLoad( LPCTSTR lpszFileName )
 {
 	BOOL bResult = FALSE;
@@ -126,10 +187,14 @@ int HtmlFileProcessTags( int( *lpTagFunction )( LPCTSTR lpszTag ) )
 			lstrcpyn( lpszTag, lpszStartOfTag, dwTagLength );
 
 			// Call tag function
-			( *lpTagFunction )( lpszTag );
+			if( ( *lpTagFunction )( lpszTag ) >= 0 )
+			{
+				// Successfully called tag function
 
-			// Update return value
-			nResult ++;
+				// Update return value
+				nResult ++;
+
+			} // End of successfully called tag function
 
 			// Find start of next tag
 			lpszStartOfTag = strchr( lpszEndOfTag, HTML_FILE_START_OF_TAG_CHARACTER );

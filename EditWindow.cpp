@@ -12,12 +12,12 @@ BOOL IsEditWindow( HWND hWnd )
 
 } // End of function IsEditWindow
 
-BOOL EditWindowCreate( HWND hWndParent, HINSTANCE hInstance )
+BOOL EditWindowCreate( HWND hWndParent, HINSTANCE hInstance, LPCTSTR lpszInitialText )
 {
 	BOOL bResult = FALSE;
 
 	// Create edit window
-	g_hWndEdit = CreateWindowEx( EDIT_WINDOW_EXTENDED_STYLE, EDIT_WINDOW_CLASS_NAME, EDIT_WINDOW_TEXT, EDIT_WINDOW_STYLE, 0, 0, 0, 0, hWndParent, ( HMENU )NULL, hInstance, NULL );
+	g_hWndEdit = CreateWindowEx( EDIT_WINDOW_EXTENDED_STYLE, EDIT_WINDOW_CLASS_NAME, lpszInitialText, EDIT_WINDOW_STYLE, 0, 0, 0, 0, hWndParent, ( HMENU )NULL, hInstance, NULL );
 
 	// Ensure that edit window was created
 	if( g_hWndEdit )

@@ -4,8 +4,19 @@
 
 int TagFunction( LPCTSTR lpszTag )
 {
-	// Add tag to list box window
-	return ListBoxWindowAddString( lpszTag );
+	int nResult = -1;
+
+	// See if this is an image tag
+	if( HtmlFileIsTagName( lpszTag, HTML_FILE_IMAGE_TAG_NAME ) )
+	{
+		// This is an image tag
+
+		// Add tag to list box window
+		nResult = ListBoxWindowAddStringEx( lpszTag );
+
+	} // End of this is an image tag
+
+	return nResult;
 
 } // End of function TagFunction
 
@@ -34,6 +45,17 @@ BOOL EditWindowChangeFunction( DWORD dwTextLength )
 	return bResult;
 
 } // End of function EditWindowChangeFunction
+
+BOOL ListBoxWindowDoubleClickFunction( LPCTSTR lpszItemText )
+{
+	BOOL bResult = FALSE;
+
+	// Show tag
+	MessageBox( 0, lpszItemText, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+
+	return bResult;
+
+} // End of function ListBoxWindowDoubleClickFunction
 
 int ShowAboutMessage( HWND hWndParent )
 {
@@ -80,7 +102,7 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 			hFont = ( HFONT )GetStockObject( DEFAULT_GUI_FONT );
 
 			// Create edit window
-			if( EditWindowCreate( hWndMain, hInstance ) )
+			if( EditWindowCreate( hWndMain, hInstance, DEFAULT_URL ) )
 			{
 				// Successfully created edit window
 
@@ -356,7 +378,7 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 						// Command message is from list box window
 
 						// Handle command message from list box window
-						if( !( ListBoxWindowHandleCommandMessage( wParam, lParam, &StatusBarWindowSetText ) ) )
+						if( !( ListBoxWindowHandleCommandMessage( wParam, lParam, &ListBoxWindowDoubleClickFunction, &StatusBarWindowSetText ) ) )
 						{
 							// Command message was not handled from list box window
 

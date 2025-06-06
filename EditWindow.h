@@ -12,11 +12,10 @@
 
 #define EDIT_WINDOW_EXTENDED_STYLE												WS_EX_WINDOWEDGE
 #define EDIT_WINDOW_STYLE														( WS_CHILD | WS_VISIBLE | WS_BORDER )
-#define EDIT_WINDOW_TEXT														"https://jim.great-site.net"
 
 BOOL IsEditWindow( HWND hWnd );
 
-BOOL EditWindowCreate( HWND hWndParent, HINSTANCE hInstance );
+BOOL EditWindowCreate( HWND hWndParent, HINSTANCE hInstance, LPCTSTR lpszInitialText );
 
 BOOL EditWindowGetRect( LPRECT lpRect );
 
