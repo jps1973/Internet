@@ -2,6 +2,9 @@
 
 #include "InternetApp.h"
 
+// Global variables
+LPTSTR g_lpszParentUrl;
+
 int TagFunction( LPCTSTR lpszTag )
 {
 	int nResult = -1;
@@ -11,8 +14,21 @@ int TagFunction( LPCTSTR lpszTag )
 	{
 		// This is an image tag
 
-		// Add tag to list box window
-		nResult = ListBoxWindowAddStringEx( lpszTag );
+		// Allocate string memory
+		LPTSTR lpszAttributeUrl = new char[ STRING_LENGTH + sizeof( char ) ];
+
+		// Get attribute url
+		if( HtmlFileGetAttributeUrl( g_lpszParentUrl, lpszTag, HTML_FILE_IMAGE_TAG_SOURCE_ATTRIBUTE_NAME, lpszAttributeUrl ) )
+		{
+			// Successfully got attribute url
+
+			// Add attribute url to list box window
+			nResult = ListBoxWindowAddStringEx( lpszAttributeUrl );
+
+		} // End of successfully got attribute url
+
+		// Free string memory
+		delete [] lpszAttributeUrl;
 
 	} // End of this is an image tag
 
@@ -50,8 +66,14 @@ BOOL ListBoxWindowDoubleClickFunction( LPCTSTR lpszItemText )
 {
 	BOOL bResult = FALSE;
 
+	// Allocate string memory
+	LPTSTR lpszAttributeValue = new char[ STRING_LENGTH + sizeof( char ) ];
+
 	// Show tag
-	MessageBox( 0, lpszItemText, INFORMATION_MESSAGE_CAPTION, ( MB_OK | MB_ICONINFORMATION ) );
+	HtmlFileGetAttributeValue( lpszItemText, "src", lpszAttributeValue );
+
+	// Free string memory
+	delete [] lpszAttributeValue;
 
 	return bResult;
 
@@ -300,6 +322,19 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 								// Allocate string memory
 								LPTSTR lpszStatusMessage = new char[ STRING_LENGTH + sizeof( char ) ];
 
+								// Update global parent url (this neesd to be done before we process the tags)
+								lstrcpy( g_lpszParentUrl, lpszUrl );
+
+								// Ensure that global parent url ends with a forward slash
+								if( g_lpszParentUrl[ lstrlen( g_lpszParentUrl ) - sizeof( char ) ] != ASCII_FORWARD_SLASH_CHARACTER )
+								{
+									// Global parent url does not end with a forward slash
+
+									// Append a forward slash onto global parent url
+									lstrcat( g_lpszParentUrl, ASCII_FORWARD_SLASH_STRING );
+
+								} // End of global parent url does not end with a forward slash
+
 								// Process tags
 								nTagCount = HtmlFileProcessTags( &TagFunction );
 
@@ -514,6 +549,12 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 {
 	MSG msg;
 
+	// Allocate global memory
+	g_lpszParentUrl = new char[ STRING_LENGTH + sizeof( char ) ];
+
+	// Clear parent url
+	g_lpszParentUrl[ 0 ] = ( char )NULL;
+
 	// Clear message structure
 	ZeroMemory( &msg, sizeof( msg ) );
 
@@ -652,6 +693,9 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 		MessageBox( NULL, INTERNET_UNABLE_TO_CONNECT_TO_INTERNET_ERROR_MESSAGE, ERROR_MESSAGE_CAPTION, ( MB_OK | MB_ICONERROR ) );
 
 	} // End of unable to connect to internet
+
+	// Free global memory
+	delete [] g_lpszParentUrl;
 
 	return msg.wParam;
 

@@ -19,6 +19,151 @@ void HtmlFileFreeMemory()
 
 } // End of function HtmlFileFreeMemory
 
+BOOL HtmlFileGetAttributeUrl( LPCTSTR lpszParentUrl, LPCTSTR lpszTag, LPCTSTR lpszAttributeName, LPTSTR lpszAttributeUrl )
+{
+	BOOL bResult = FALSE;
+
+	// Allocate string memory
+	LPTSTR lpszAttributeValue = new char[ STRING_LENGTH + sizeof( char ) ];
+
+	// Get attribute value
+	if( HtmlFileGetAttributeValue( lpszTag, lpszAttributeName, lpszAttributeValue ) )
+	{
+		// Successfully got attribute value
+		LPTSTR lpszQuestionMark;
+
+		// Find any question marks in attribute value
+		lpszQuestionMark = strchr( lpszAttributeValue, ASCII_QUESTION_MARK_CHARACTER );
+
+		// See if there are any question marks in attribute value
+		if( lpszQuestionMark )
+		{
+			// There are question marks in attribute value
+
+			// Terminate attribute value at first question mark
+			lpszQuestionMark[ 0 ] = ( char )NULL;
+
+		} // End of there are question marks in attribute value
+
+		// Ensure that attribute value is not empty
+		if( lpszAttributeValue[ 0 ] )
+		{
+			// Attribute value is not empty
+
+			// See if attribute value is an absolute url
+			if( strstr( lpszAttributeValue, HTML_FILE_ABSOLUTE_URL_IDENTIFIER ) )
+			{
+				// Attribute value is an absolute url
+
+				// Update attribute url
+				lstrcpy( lpszAttributeUrl, lpszAttributeValue );
+
+			} // End of attribute value is an absolute url
+			else
+			{
+				// Attribute value is not an absolute url
+
+				// Copy parent url into attribute url
+				lstrcpy( lpszAttributeUrl, lpszParentUrl );
+
+				// See if attribute value begins with a forward slash
+				if( lpszAttributeValue[ 0 ] == ASCII_FORWARD_SLASH_CHARACTER )
+				{
+					// Attribute value begins with a forward slash
+
+					// Append attribute value (after forward slash character) onto  attribute url
+					lstrcat( lpszAttributeUrl, ( lpszAttributeValue + sizeof( char ) ) );
+
+				} // End of attribute value begins with a forward slash
+				else
+				{
+					// Attribute value does not begin with a forward slash
+
+					// Append attribute value onto  attribute url
+					lstrcat( lpszAttributeUrl, lpszAttributeValue );
+
+				} // End of attribute value does not begin with a forward slash
+
+			} // End of attribute value is not an absolute url
+
+			// Update return value
+			bResult = TRUE;
+
+		} // End of attribute value is not empty
+
+	} // End of successfully got attribute value
+
+	// Free string memory
+	delete [] lpszAttributeValue;
+
+	return bResult;
+
+} // End of function HtmlFileGetAttributeUrl
+
+BOOL HtmlFileGetAttributeValue( LPCTSTR lpszTag, LPCTSTR lpszAttributeName, LPTSTR lpszAttributeValue )
+{
+	BOOL bResult = FALSE;
+
+	int nOffset;
+
+	// Find attribute name in tag
+	nOffset = FindTextInString( lpszTag, lpszAttributeName );
+
+	// Ensure that attribute name was found in tag
+	if( nOffset >= 0 )
+	{
+		// Successfully found attribute name in tag
+
+		// Find first non-space character after attribute name
+		nOffset = GetNextNonSpace( lpszTag, ( nOffset + lstrlen( lpszAttributeName ) ) );
+
+		// Ensure that first non-space character after attribute name is an equals sign
+		if( lpszTag[ nOffset ] == ASCII_EQUALS_CHARACTER )
+		{
+			// First non-space character after attribute name is an equals sign
+
+			// Find first non-space character after equals sign
+			nOffset = GetNextNonSpace( lpszTag, ( nOffset + sizeof( char ) ) );
+
+			// Ensure that first non-space character after equals sign is an apostrophe or inverted comma
+			if( ( lpszTag[ nOffset ] == ASCII_APOSTROPHE_CHARACTER ) || ( lpszTag[ nOffset ] == ASCII_INVERTED_COMMA_CHARACTER ) )
+			{
+				// First non-space character after equals sign is an apostrophe or inverted comma
+				char cAttributeDelimiter;
+				LPTSTR lpszEndOfAttribute;
+
+				// Store attribute delimiter
+				cAttributeDelimiter = lpszTag[ nOffset ];
+
+				// Store attribute
+				lstrcpy( lpszAttributeValue, ( lpszTag + nOffset + sizeof( char ) ) );
+
+				// Find end of attribute
+				lpszEndOfAttribute = strchr( lpszAttributeValue, cAttributeDelimiter );
+
+				// Ensure that end of attribute was found
+				if( lpszEndOfAttribute )
+				{
+					// Successfully found end of attribute
+
+					// Terminate attribute
+					lpszEndOfAttribute[ 0 ] = ( char )NULL;
+
+					// Update return value
+					bResult = TRUE;
+
+				} // End of successfully found end of attribute
+
+			} // End of first non-space character after equals sign is an apostrophe or inverted comma
+
+		} // End of first non-space character after attribute name is an equals sign
+
+	} // End of successfully found attribute name in tag
+
+	return bResult;
+
+} // End of function HtmlFileGetAttributeValue
+
 BOOL HtmlFileGetTagName( LPCTSTR lpszTag, LPTSTR lpszTagName )
 {
 	BOOL bResult = FALSE;

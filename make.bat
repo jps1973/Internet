@@ -10,6 +10,7 @@ g++ -mwindows -m64 -static -Wall -Wextra ^
  ^
  HtmlFile.cpp ^
  Internet.cpp ^
+ String.cpp ^
  ^
  ButtonWindow.cpp ^
  EditWindow.cpp ^
