@@ -22,8 +22,21 @@ int TagFunction( LPCTSTR lpszTag )
 		{
 			// Successfully got attribute url
 
-			// Add attribute url to list box window
-			nResult = ListBoxWindowAddStringEx( lpszAttributeUrl );
+			// Allocate string memory
+			LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH + sizeof( char ) ];
+
+			// Download file
+			if( InternetDownloadFile( lpszAttributeUrl, lpszLocalFilePath, &StatusBarWindowSetText ) )
+			{
+				// Successfully downloaded file
+
+				// Add attribute url to list box window
+				nResult = ListBoxWindowAddStringEx( lpszAttributeUrl );
+
+			} // End of successfully downloaded file
+
+			// Free string memory
+			delete [] lpszLocalFilePath;
 
 		} // End of successfully got attribute url
 
