@@ -25,15 +25,25 @@ int TagFunction( LPCTSTR lpszTag )
 			// Allocate string memory
 			LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH + sizeof( char ) ];
 
-			// Download file
-			if( InternetDownloadFile( lpszAttributeUrl, lpszLocalFilePath, &StatusBarWindowSetText ) )
+			// Add url to list view window
+			nResult = ListViewWindowAddItem( lpszAttributeUrl );
+
+			// Ensure that url was added to list view window
+			if( nResult >= 0 )
 			{
-				// Successfully downloaded file
+				// Successfully added url to list view window
 
-				// Add attribute url to list box window
-				nResult = ListBoxWindowAddStringEx( lpszAttributeUrl );
+				// Download file
+				if( InternetDownloadFile( lpszAttributeUrl, lpszLocalFilePath, &StatusBarWindowSetText ) )
+				{
+					// Successfully downloaded file
 
-			} // End of successfully downloaded file
+					// Add local file path to list view window
+					ListViewWindowSetItemTextEx( nResult, LIST_VIEW_WINDOW_LOCAL_FILE_PATH_COLUMN_ID, lpszLocalFilePath );
+
+				} // End of successfully downloaded file
+
+			} // End of successfully added url to list view window
 
 			// Free string memory
 			delete [] lpszLocalFilePath;
@@ -75,7 +85,7 @@ BOOL EditWindowChangeFunction( DWORD dwTextLength )
 
 } // End of function EditWindowChangeFunction
 
-BOOL ListBoxWindowDoubleClickFunction( LPCTSTR lpszItemText )
+BOOL ListViewWindowDoubleClickFunction( LPCTSTR lpszItemText )
 {
 	BOOL bResult = FALSE;
 
@@ -90,7 +100,7 @@ BOOL ListBoxWindowDoubleClickFunction( LPCTSTR lpszItemText )
 
 	return bResult;
 
-} // End of function ListBoxWindowDoubleClickFunction
+} // End of function ListViewWindowDoubleClickFunction
 
 int ShowAboutMessage( HWND hWndParent )
 {
@@ -152,13 +162,13 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 					// Set button window font
 					ButtonWindowSetFont( hFont );
 
-					// Create list box window
-					if( ListBoxWindowCreate( hWndMain, hInstance ) )
+					// Create list view window
+					if( ListViewWindowCreate( hWndMain, hInstance ) )
 					{
-						// Successfully created list box window
+						// Successfully created list view window
 
-						// Set list box window font
-						ListBoxWindowSetFont( hFont );
+						// Set list view window font
+						ListViewWindowSetFont( hFont );
 
 						// Create status bar window
 						if( StatusBarWindowCreate( hWndMain, hInstance ) )
@@ -173,7 +183,7 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 
 						} // End of successfully created status bar window
 
-					} // End of successfully created list box window
+					} // End of successfully created list view window
 
 				} // End of successfully created button window
 
@@ -190,8 +200,8 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 			int nClientHeight;
 			RECT rcStatus;
 			int nStatusWindowHeight;
-			int nListBoxWindowHeight;
-			int nListBoxWindowTop;
+			int nListViewWindowHeight;
+			int nListViewWindowTop;
 			int nEditWindowWidth;
 			int nButtonWindowLeft;
 
@@ -207,15 +217,15 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 
 			// Calculate window sizes
 			nStatusWindowHeight		= ( rcStatus.bottom - rcStatus.top );
-			nListBoxWindowHeight	= ( nClientHeight - ( nStatusWindowHeight + BUTTON_WINDOW_HEIGHT ) + WINDOW_BORDER_HEIGHT );
+			nListViewWindowHeight	= ( nClientHeight - ( nStatusWindowHeight + BUTTON_WINDOW_HEIGHT ) + WINDOW_BORDER_HEIGHT );
 			nEditWindowWidth		= ( ( nClientWidth - BUTTON_WINDOW_WIDTH ) + WINDOW_BORDER_WIDTH );
 
 			// Calculate window positions
-			nListBoxWindowTop		= ( BUTTON_WINDOW_HEIGHT - WINDOW_BORDER_HEIGHT );
+			nListViewWindowTop		= ( BUTTON_WINDOW_HEIGHT - WINDOW_BORDER_HEIGHT );
 			nButtonWindowLeft		= ( nEditWindowWidth - WINDOW_BORDER_WIDTH );
 
 			// Move control windows
-			ListBoxWindowMove( 0, nListBoxWindowTop, nClientWidth, nListBoxWindowHeight, TRUE );
+			ListViewWindowMove( 0, nListViewWindowTop, nClientWidth, nListViewWindowHeight, TRUE );
 			EditWindowMove( 0, 0, nEditWindowWidth, BUTTON_WINDOW_HEIGHT, TRUE );
 			ButtonWindowMove( nButtonWindowLeft, 0, BUTTON_WINDOW_WIDTH, BUTTON_WINDOW_HEIGHT, TRUE );
 
@@ -250,55 +260,6 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 			break;
 
 		} // End of a get min max info message
-		case WM_DROPFILES:
-		{
-			// A drop files message
-			UINT uFileCount;
-			HDROP hDrop;
-			UINT uWhichFile;
-			UINT uFileSize;
-
-			// Allocate string memory
-			LPTSTR lpszFilePath = new char[ STRING_LENGTH + sizeof( char ) ];
-
-			// Get drop handle
-			hDrop = ( HDROP )wParam;
-
-			// Count dropped files
-			uFileCount = DragQueryFile( hDrop, ( UINT )-1, NULL, 0 );
-
-			// Loop through dropped files
-			for( uWhichFile = 0; uWhichFile < uFileCount; uWhichFile ++ )
-			{
-				// Get size of dropped file
-				uFileSize = DragQueryFile( hDrop, uWhichFile, NULL, 0 );
-
-				// Ensure that file size is valid
-				if( uFileSize != 0 )
-				{
-					// File size is valid
-
-					// Get file path
-					if( DragQueryFile( hDrop, uWhichFile, lpszFilePath, ( uFileSize + sizeof( char ) ) ) )
-					{
-						// Successfully got file path
-
-						// Add file path to list box window
-						ListBoxWindowAddString( lpszFilePath );
-
-					} // End of successfully got file path
-
-				} // End of file size is valid
-
-			}; // End of loop through dropped files
-
-			// Free string memory
-			delete [] lpszFilePath;
-
-			// Break out of switch
-			break;
-
-		} // End of a drop files message
 		case WM_COMMAND:
 		{
 			// A command message
@@ -351,6 +312,9 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 								// Process tags
 								nTagCount = HtmlFileProcessTags( &TagFunction );
 
+								// Auto-size all list view window columns
+								ListViewWindowAutoSizeAllColumns()
+;
 								// Format status message
 								wsprintf( lpszStatusMessage, HTML_FILE_PROCESS_TAGS_STATUS_MESSAGE_FORMAT_STRING, lpszLocalFilePath, nTagCount );
 
@@ -421,29 +385,14 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 						} // End of command message was not handled from edit window
 
 					} // End of command message is from edit window
-					if( IsListBoxWindow( ( HWND )lParam ) )
-					{
-						// Command message is from list box window
-
-						// Handle command message from list box window
-						if( !( ListBoxWindowHandleCommandMessage( wParam, lParam, &ListBoxWindowDoubleClickFunction, &StatusBarWindowSetText ) ) )
-						{
-							// Command message was not handled from list box window
-
-							// Call default procedure
-							lr = DefWindowProc( hWndMain, uMsg, wParam, lParam );
-
-						} // End of command message was not handled from list box window
-
-					} // End of command message is from list box window
 					else
 					{
-						// Command message is not from list box window
+						// Command message is not from list view window
 
 						// Call default procedure
 						lr = DefWindowProc( hWndMain, uMsg, wParam, lParam );
 
-					} // End of command message is not from list box window
+					} // End of command message is not from list view window
 
 					// Break out of switch
 					break;
@@ -495,9 +444,35 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 		case WM_NOTIFY:
 		{
 			// A notify message
+			LPNMHDR lpNmHdr;
 
-			// Call default procedure
-			lr = DefWindowProc( hWndMain, uMsg, wParam, lParam );
+			// Get notify message handler
+			lpNmHdr = ( LPNMHDR )lParam;
+
+			// See if notify message is from list view window
+			if( IsListViewWindow( lpNmHdr->hwndFrom ) )
+			{
+				// Notify message is from list view window
+
+				// Handle notify message from list view window
+				if( !( ListViewWindowHandleNotifyMessage( wParam, lParam, &StatusBarWindowSetText ) ) )
+				{
+					// Notify message was not handled from list view window
+
+					// Call default procedure
+					lr = DefWindowProc( hWndMain, uMsg, wParam, lParam );
+
+				} // End of notify message was not handled from list view window
+
+			} // End of notify message is from list view window
+			else
+			{
+				// Notify message is not from list view window
+
+				// Call default procedure
+				lr = DefWindowProc( hWndMain, uMsg, wParam, lParam );
+
+			} // End of notify message is not from list view window
 
 			// Break out of switch
 			break;
@@ -647,8 +622,8 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 						// Terminate argument
 						lpszArgument[ nSizeNeeded ] = ( char )NULL;
 
-						// Add argument to list box window
-						ListBoxWindowAddString( lpszArgument );
+						// Add argument to list view window
+						//ListViewWindowAddString( lpszArgument );
 
 					}; // End of loop through arguments
 

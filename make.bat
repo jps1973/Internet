@@ -14,7 +14,7 @@ g++ -mwindows -m64 -static -Wall -Wextra ^
  ^
  ButtonWindow.cpp ^
  EditWindow.cpp ^
- ListBoxWindow.cpp ^
+ ListViewWindow.cpp ^
  StatusBarWindow.cpp ^
  ^
  Resource.o ^

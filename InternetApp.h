@@ -12,7 +12,7 @@
 
 #include "ButtonWindow.h"
 #include "EditWindow.h"
-#include "ListBoxWindow.h"
+#include "ListViewWindow.h"
 #include "StatusBarWindow.h"
 
 #define MAIN_WINDOW_CLASS_NAME													"Main Internet Window Class"
