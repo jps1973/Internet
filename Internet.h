@@ -16,6 +16,8 @@
 
 #define INTERNET_DOWNLOADING_STATUS_MESSAGE_FORMAT_STRING						"Downloading %s to %s (%d bytes)"
 
+#define INTERNET_UNABLE_TO_DOWNLOAD_FILE_STATUS_MESSAGE							"[Unable to download file]"
+
 #define INTERNET_UNABLE_TO_CONNECT_TO_INTERNET_ERROR_MESSAGE					"Unable to connect to internet"
 
 BOOL InternetClose();

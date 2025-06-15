@@ -42,6 +42,14 @@ int TagFunction( LPCTSTR lpszTag )
 					ListViewWindowSetItemTextEx( nResult, LIST_VIEW_WINDOW_LOCAL_FILE_PATH_COLUMN_ID, lpszLocalFilePath );
 
 				} // End of successfully downloaded file
+				else
+				{
+					// Unable to download file
+
+					// Add local file path to list view window
+					ListViewWindowSetItemTextEx( nResult, LIST_VIEW_WINDOW_LOCAL_FILE_PATH_COLUMN_ID, INTERNET_UNABLE_TO_DOWNLOAD_FILE_STATUS_MESSAGE );
+
+				} // End of unable to download file
 
 			} // End of successfully added url to list view window
 
