@@ -4,13 +4,15 @@
 
 // Global variables
 LPTSTR g_lpszParentUrl;
+LPTSTR g_lpszRequiredTagName;
+LPTSTR g_lpszRequiredAttributeName;
 
-int TagFunction( LPCTSTR lpszTag )
+int TagFunction( LPCTSTR lpszTag, LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName )
 {
 	int nResult = -1;
 
 	// See if this is an image tag
-	if( HtmlFileIsTagName( lpszTag, HTML_FILE_IMAGE_TAG_NAME ) )
+	if( HtmlFileIsTagName( lpszTag, lpszRequiredTagName ) )
 	{
 		// This is an image tag
 
@@ -18,7 +20,7 @@ int TagFunction( LPCTSTR lpszTag )
 		LPTSTR lpszAttributeUrl = new char[ STRING_LENGTH + sizeof( char ) ];
 
 		// Get attribute url
-		if( HtmlFileGetAttributeUrl( g_lpszParentUrl, lpszTag, HTML_FILE_IMAGE_TAG_SOURCE_ATTRIBUTE_NAME, lpszAttributeUrl ) )
+		if( HtmlFileGetAttributeUrl( g_lpszParentUrl, lpszTag, lpszRequiredAttributeName, lpszAttributeUrl ) )
 		{
 			// Successfully got attribute url
 
@@ -318,7 +320,7 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 								} // End of global parent url does not end with a forward slash
 
 								// Process tags
-								nTagCount = HtmlFileProcessTags( &TagFunction );
+								nTagCount = HtmlFileProcessTags( g_lpszRequiredTagName, g_lpszRequiredAttributeName, &TagFunction );
 
 								// Auto-size all list view window columns
 								ListViewWindowAutoSizeAllColumns()
@@ -546,10 +548,14 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 	MSG msg;
 
 	// Allocate global memory
-	g_lpszParentUrl = new char[ STRING_LENGTH + sizeof( char ) ];
+	g_lpszParentUrl				= new char[ STRING_LENGTH + sizeof( char ) ];
+	g_lpszRequiredTagName		= new char[ STRING_LENGTH + sizeof( char ) ];
+	g_lpszRequiredAttributeName	= new char[ STRING_LENGTH + sizeof( char ) ];
 
-	// Clear parent url
-	g_lpszParentUrl[ 0 ] = ( char )NULL;
+	// Clear global strings
+	g_lpszParentUrl[ 0 ]				= ( char )NULL;
+	g_lpszRequiredTagName[ 0 ]			= ( char )NULL;
+	g_lpszRequiredAttributeName[ 0 ]	= ( char )NULL;
 
 	// Clear message structure
 	ZeroMemory( &msg, sizeof( msg ) );
@@ -603,6 +609,10 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 
 				// Get argument list
 				lpszArgumentList = CommandLineToArgvW( GetCommandLineW(), &nArgumentCount );
+
+				// Initialise global data
+				g_lpszRequiredTagName		= ( LPTSTR )DEFAULT_REQUIRED_TAG_NAME;
+				g_lpszRequiredAttributeName	= ( LPTSTR )DEFAULT_REQUIRED_ATTRIBUTE_NAME;
 
 				// Ensure that argument list was got
 				if( lpszArgumentList )
@@ -692,6 +702,8 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 
 	// Free global memory
 	delete [] g_lpszParentUrl;
+	delete [] g_lpszRequiredTagName;
+	delete [] g_lpszRequiredAttributeName;
 
 	return msg.wParam;
 

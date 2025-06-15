@@ -38,6 +38,9 @@
 
 #define DEFAULT_URL																"https://news.sky.com"
 
+#define DEFAULT_REQUIRED_TAG_NAME												HTML_FILE_IMAGE_TAG_NAME
+#define DEFAULT_REQUIRED_ATTRIBUTE_NAME											HTML_FILE_IMAGE_TAG_SOURCE_ATTRIBUTE_NAME
+
 #define ABOUT_MESSAGE_TEXT														"Internet\r\n"						\
 																				"\r\n"								\
 																				"Written by Jim Smith\r\n"			\
