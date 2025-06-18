@@ -611,39 +611,62 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 				lpszArgumentList = CommandLineToArgvW( GetCommandLineW(), &nArgumentCount );
 
 				// Initialise global data
-				g_lpszRequiredTagName		= ( LPTSTR )DEFAULT_REQUIRED_TAG_NAME;
-				g_lpszRequiredAttributeName	= ( LPTSTR )DEFAULT_REQUIRED_ATTRIBUTE_NAME;
+				lstrcpy( g_lpszRequiredTagName,			( LPTSTR )DEFAULT_REQUIRED_TAG_NAME );
+				lstrcpy( g_lpszRequiredAttributeName,	( LPTSTR )DEFAULT_REQUIRED_ATTRIBUTE_NAME );
 
 				// Ensure that argument list was got
 				if( lpszArgumentList )
 				{
 					// Successfully got argument list
-					int nWhichArgument;
 					int nSizeNeeded;
 					int nWideArgumentLength;
 
 					// Allocate string memory
 					LPTSTR lpszArgument = new char[ STRING_LENGTH + sizeof( char ) ];
 
-					// Loop through arguments
-					for( nWhichArgument = 1; nWhichArgument < nArgumentCount; nWhichArgument ++ )
+					// See if tag name argument is valid
+					if( nArgumentCount > INTERNET_TAG_NAME_ARGUMENT )
 					{
+						// Tag name argument is valid
+
 						// Get wide argument length
-						nWideArgumentLength = lstrlenW( lpszArgumentList[ nWhichArgument ] );
+						nWideArgumentLength = lstrlenW( lpszArgumentList[ INTERNET_TAG_NAME_ARGUMENT ] );
 
 						// Get size required for argument
-						nSizeNeeded = WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ nWhichArgument ], nWideArgumentLength, NULL, 0, NULL, NULL );
+						nSizeNeeded = WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ INTERNET_TAG_NAME_ARGUMENT ], nWideArgumentLength, NULL, 0, NULL, NULL );
 
 						// Convert argument to ansi
-						WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ nWhichArgument ], nWideArgumentLength, lpszArgument, nSizeNeeded, NULL, NULL );
+						WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ INTERNET_TAG_NAME_ARGUMENT ], nWideArgumentLength, lpszArgument, nSizeNeeded, NULL, NULL );
 
 						// Terminate argument
 						lpszArgument[ nSizeNeeded ] = ( char )NULL;
 
-						// Add argument to list view window
-						//ListViewWindowAddString( lpszArgument );
+						// Copy argument into required tag name
+						lstrcpy( g_lpszRequiredTagName, lpszArgument );
 
-					}; // End of loop through arguments
+						// See if attribute argument is valid
+						if( nArgumentCount > INTERNET_ATTRIBUTE_NAME_ARGUMENT )
+						{
+							// Attribute argument is valid
+
+							// Get wide argument length
+							nWideArgumentLength = lstrlenW( lpszArgumentList[ INTERNET_ATTRIBUTE_NAME_ARGUMENT ] );
+
+							// Get size required for argument
+							nSizeNeeded = WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ INTERNET_ATTRIBUTE_NAME_ARGUMENT ], nWideArgumentLength, NULL, 0, NULL, NULL );
+
+							// Convert argument to ansi
+							WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ INTERNET_ATTRIBUTE_NAME_ARGUMENT ], nWideArgumentLength, lpszArgument, nSizeNeeded, NULL, NULL );
+
+							// Terminate argument
+							lpszArgument[ nSizeNeeded ] = ( char )NULL;
+
+							// Copy argument into required attribute
+							lstrcpy( g_lpszRequiredAttributeName, lpszArgument );
+
+						} // End of attribute argument is valid
+
+					} // End of tag name argument is valid
 
 					// Free string memory
 					delete [] lpszArgument;
