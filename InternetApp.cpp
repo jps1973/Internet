@@ -6,8 +6,9 @@
 LPTSTR g_lpszParentUrl;
 LPTSTR g_lpszRequiredTagName;
 LPTSTR g_lpszRequiredAttributeName;
+LPTSTR g_lpszAttributeMustContain;
 
-int TagFunction( LPCTSTR lpszTag, LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName )
+int TagFunction( LPCTSTR lpszTag, LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName, LPCTSTR lpszAttributeMustContain )
 {
 	int nResult = -1;
 
@@ -24,39 +25,46 @@ int TagFunction( LPCTSTR lpszTag, LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequi
 		{
 			// Successfully got attribute url
 
-			// Allocate string memory
-			LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH + sizeof( char ) ];
-
-			// Add url to list view window
-			nResult = ListViewWindowAddItem( lpszAttributeUrl );
-
-			// Ensure that url was added to list view window
-			if( nResult >= 0 )
+			// See if attribute contains required text
+			if( ( FindTextInString( lpszAttributeUrl, lpszAttributeMustContain ) >= 0 ) || ( lstrlen( lpszAttributeMustContain ) == 0 ) )
 			{
-				// Successfully added url to list view window
+				// Attribute contains required text (or required text is empty)
 
-				// Download file
-				if( InternetDownloadFile( lpszAttributeUrl, lpszLocalFilePath, &StatusBarWindowSetText ) )
+				// Allocate string memory
+				LPTSTR lpszLocalFilePath = new char[ STRING_LENGTH + sizeof( char ) ];
+
+				// Add url to list view window
+				nResult = ListViewWindowAddItem( lpszAttributeUrl );
+
+				// Ensure that url was added to list view window
+				if( nResult >= 0 )
 				{
-					// Successfully downloaded file
+					// Successfully added url to list view window
 
-					// Add local file path to list view window
-					ListViewWindowSetItemTextEx( nResult, LIST_VIEW_WINDOW_LOCAL_FILE_PATH_COLUMN_ID, lpszLocalFilePath );
+					// Download file
+					if( InternetDownloadFile( lpszAttributeUrl, lpszLocalFilePath, &StatusBarWindowSetText ) )
+					{
+						// Successfully downloaded file
 
-				} // End of successfully downloaded file
-				else
-				{
-					// Unable to download file
+						// Add local file path to list view window
+						ListViewWindowSetItemTextEx( nResult, LIST_VIEW_WINDOW_LOCAL_FILE_PATH_COLUMN_ID, lpszLocalFilePath );
 
-					// Add local file path to list view window
-					ListViewWindowSetItemTextEx( nResult, LIST_VIEW_WINDOW_LOCAL_FILE_PATH_COLUMN_ID, INTERNET_UNABLE_TO_DOWNLOAD_FILE_STATUS_MESSAGE );
+					} // End of successfully downloaded file
+					else
+					{
+						// Unable to download file
 
-				} // End of unable to download file
+						// Add local file path to list view window
+						ListViewWindowSetItemTextEx( nResult, LIST_VIEW_WINDOW_LOCAL_FILE_PATH_COLUMN_ID, INTERNET_UNABLE_TO_DOWNLOAD_FILE_STATUS_MESSAGE );
 
-			} // End of successfully added url to list view window
+					} // End of unable to download file
 
-			// Free string memory
-			delete [] lpszLocalFilePath;
+				} // End of successfully added url to list view window
+
+				// Free string memory
+				delete [] lpszLocalFilePath;
+
+			} // End of attribute contains required text (or required text is empty)
 
 		} // End of successfully got attribute url
 
@@ -320,7 +328,7 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 								} // End of global parent url does not end with a forward slash
 
 								// Process tags
-								nTagCount = HtmlFileProcessTags( g_lpszRequiredTagName, g_lpszRequiredAttributeName, &TagFunction );
+								nTagCount = HtmlFileProcessTags( g_lpszRequiredTagName, g_lpszRequiredAttributeName, g_lpszAttributeMustContain, &TagFunction );
 
 								// Auto-size all list view window columns
 								ListViewWindowAutoSizeAllColumns()
@@ -551,11 +559,13 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 	g_lpszParentUrl				= new char[ STRING_LENGTH + sizeof( char ) ];
 	g_lpszRequiredTagName		= new char[ STRING_LENGTH + sizeof( char ) ];
 	g_lpszRequiredAttributeName	= new char[ STRING_LENGTH + sizeof( char ) ];
+	g_lpszAttributeMustContain	= new char[ STRING_LENGTH + sizeof( char ) ];
 
 	// Clear global strings
 	g_lpszParentUrl[ 0 ]				= ( char )NULL;
 	g_lpszRequiredTagName[ 0 ]			= ( char )NULL;
 	g_lpszRequiredAttributeName[ 0 ]	= ( char )NULL;
+	g_lpszAttributeMustContain[ 0 ]		= ( char )NULL;
 
 	// Clear message structure
 	ZeroMemory( &msg, sizeof( msg ) );
@@ -613,6 +623,7 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 				// Initialise global data
 				lstrcpy( g_lpszRequiredTagName,			( LPTSTR )DEFAULT_REQUIRED_TAG_NAME );
 				lstrcpy( g_lpszRequiredAttributeName,	( LPTSTR )DEFAULT_REQUIRED_ATTRIBUTE_NAME );
+				lstrcpy( g_lpszAttributeMustContain,	( LPTSTR )DEFAULT_ATTRIBUTE_MUST_CONTAIN );
 
 				// Ensure that argument list was got
 				if( lpszArgumentList )
@@ -644,10 +655,10 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 						// Copy argument into required tag name
 						lstrcpy( g_lpszRequiredTagName, lpszArgument );
 
-						// See if attribute argument is valid
+						// See if attribute name argument is valid
 						if( nArgumentCount > INTERNET_ATTRIBUTE_NAME_ARGUMENT )
 						{
-							// Attribute argument is valid
+							// Attribute name argument is valid
 
 							// Get wide argument length
 							nWideArgumentLength = lstrlenW( lpszArgumentList[ INTERNET_ATTRIBUTE_NAME_ARGUMENT ] );
@@ -664,7 +675,29 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow )
 							// Copy argument into required attribute
 							lstrcpy( g_lpszRequiredAttributeName, lpszArgument );
 
-						} // End of attribute argument is valid
+							// See if must contain argument is valid
+							if( nArgumentCount > INTERNET_ATTRIBUTE_MUST_CONTAIN_ARGUMENT )
+							{
+								// Attribute must contain argument is valid
+
+								// Get wide argument length
+								nWideArgumentLength = lstrlenW( lpszArgumentList[ INTERNET_ATTRIBUTE_MUST_CONTAIN_ARGUMENT ] );
+
+								// Get size required for argument
+								nSizeNeeded = WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ INTERNET_ATTRIBUTE_MUST_CONTAIN_ARGUMENT ], nWideArgumentLength, NULL, 0, NULL, NULL );
+
+								// Convert argument to ansi
+								WideCharToMultiByte( CP_UTF8, 0, lpszArgumentList[ INTERNET_ATTRIBUTE_MUST_CONTAIN_ARGUMENT ], nWideArgumentLength, lpszArgument, nSizeNeeded, NULL, NULL );
+
+								// Terminate argument
+								lpszArgument[ nSizeNeeded ] = ( char )NULL;
+
+								// Copy argument into required attribute
+								lstrcpy( g_lpszAttributeMustContain, lpszArgument );
+
+							} // End of attribute must contain argument is valid
+
+						} // End of attribute name argument is valid
 
 					} // End of tag name argument is valid
 

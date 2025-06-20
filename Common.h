@@ -9,6 +9,7 @@
 
 #define ALL_FILES_FILTER														"*.*"
 #define NEW_LINE_TEXT															"\r\n"
+#define EMPTY_STRING															""
 
 #define WINDOW_BORDER_WIDTH														::GetSystemMetrics( SM_CXBORDER )
 #define WINDOW_BORDER_HEIGHT													::GetSystemMetrics( SM_CYBORDER )

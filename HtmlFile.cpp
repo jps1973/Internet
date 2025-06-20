@@ -283,7 +283,7 @@ BOOL HtmlFileLoad( LPCTSTR lpszFileName )
 
 } // End of function HtmlFileLoad
 
-int HtmlFileProcessTags( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName, int( *lpTagFunction )( LPCTSTR lpszTag, LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName ) )
+int HtmlFileProcessTags( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName, LPCTSTR lpszAttributeMustContain, int( *lpTagFunction )( LPCTSTR lpszTag, LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName, LPCTSTR lpszAttributeMustContain ) )
 {
 	int nResult = 0;
 
@@ -332,7 +332,7 @@ int HtmlFileProcessTags( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttrib
 			lstrcpyn( lpszTag, lpszStartOfTag, dwTagLength );
 
 			// Call tag function
-			if( ( *lpTagFunction )( lpszTag, lpszRequiredTagName, lpszRequiredAttributeName ) >= 0 )
+			if( ( *lpTagFunction )( lpszTag, lpszRequiredTagName, lpszRequiredAttributeName, lpszAttributeMustContain ) >= 0 )
 			{
 				// Successfully called tag function
 

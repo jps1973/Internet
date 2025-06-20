@@ -35,5 +35,5 @@ BOOL HtmlFileIsTagName( LPCTSTR lpszTag, LPCTSTR lpszRequiredTagName );
 
 BOOL HtmlFileLoad( LPCTSTR lpszFileName );
 
-int HtmlFileProcessTags( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName, int( *lpTagFunction )( LPCTSTR lpszTag, LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName ) );
+int HtmlFileProcessTags( LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName, LPCTSTR lpszAttributeMustContain, int( *lpTagFunction )( LPCTSTR lpszTag, LPCTSTR lpszRequiredTagName, LPCTSTR lpszRequiredAttributeName, LPCTSTR lpszAttributeMustContain ) );
 
