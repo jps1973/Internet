@@ -19,7 +19,7 @@
 
 #define HTML_FILE_ABSOLUTE_URL_IDENTIFIER										"://"
 
-#define HTML_FILE_PROCESS_TAGS_STATUS_MESSAGE_FORMAT_STRING						"%s (%d tags)"
+#define HTML_FILE_PROCESS_TAGS_STATUS_MESSAGE_FORMAT_STRING						"%s (%d items)"
 
 int HtmlFileDisplayText( LPCTSTR lpszTitle, HWND hWndParent = NULL );
 

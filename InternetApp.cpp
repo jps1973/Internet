@@ -158,14 +158,71 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 			HINSTANCE hInstance;
 			HFONT hFont;
 
+			// Allocate string memory
+			LPTSTR lpszInitialUrl = new char[ STRING_LENGTH + sizeof( char ) ];
+
 			// Get instance
 			hInstance = ( ( LPCREATESTRUCT )lParam )->hInstance;
+
+			// Open clipboard
+			if( OpenClipboard( NULL ) )
+			{
+				// Successfully opened clipboard
+				HANDLE hClipboard;
+
+				// Get clipboard data
+				hClipboard = GetClipboardData( CF_TEXT );
+
+				// Ensure that clipboard data was got
+				if( hClipboard )
+				{
+					// Successfully got clipboard data
+					LPTSTR lpszClipboard;
+
+					// Lock clipboard text into memory
+					lpszClipboard = ( LPTSTR )( GlobalLock( hClipboard ) );
+
+					// Ensure that clipboard text was locked into global memory
+					if( lpszClipboard )
+					{
+						// Successfully locked clipboard text into global memory
+
+						// Update initial url
+						lstrcpy( lpszInitialUrl, lpszClipboard );
+
+						// Unlock global global memory
+						GlobalUnlock( hClipboard );
+
+					} // End of successfully locked clipboard text into global memory
+
+				} // End of successfully got clipboard data
+				else
+				{
+					// Unable to get clipboard data
+
+					// Use default initial url
+					lstrcpy( lpszInitialUrl, DEFAULT_URL );
+
+				} // End of unable to get clipboard data
+
+				// Close clipboard
+				CloseClipboard();
+
+			} // End of successfully opened clipboard
+			else
+			{
+				// Unable to open clipboard
+
+				// Use default initial url
+				lstrcpy( lpszInitialUrl, DEFAULT_URL );
+
+			} // End of unable to open clipboard
 
 			// Get font
 			hFont = ( HFONT )GetStockObject( DEFAULT_GUI_FONT );
 
 			// Create edit window
-			if( EditWindowCreate( hWndMain, hInstance, DEFAULT_URL ) )
+			if( EditWindowCreate( hWndMain, hInstance, lpszInitialUrl ) )
 			{
 				// Successfully created edit window
 
@@ -206,6 +263,9 @@ LRESULT CALLBACK MainWindowProcedure( HWND hWndMain, UINT uMsg, WPARAM wParam, L
 				} // End of successfully created button window
 
 			} // End of successfully created edit window
+
+			// Free string memory
+			delete [] lpszInitialUrl;
 
 			// Break out of switch
 			break;
